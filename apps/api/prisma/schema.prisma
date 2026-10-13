@@ -13,12 +13,33 @@ enum UserRole {
   SECRETARY
 }
 
-model Usuario {
+model User {
   id           String       @id @default(uuid()) @db.Uuid
   name         String
   email        String       @unique
-  passwordHash String
+  passwordHash String       @map("password_hash")
   role         UserRole
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  auditLogs AuditLog[]
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt  @map("updated_at")
+
+  @@map("users")
+}
+
+model SystemSetup {
+  id Int @id
+  completedAt DateTime @default(now()) @map("completed_at")
+
+  @@map("system_setup")
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  action    String
+  userId    String?  @map("user_id") @db.Uuid
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  ip        String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("audit_logs")
 }
