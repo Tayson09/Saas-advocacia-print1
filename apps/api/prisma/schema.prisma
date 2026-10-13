@@ -7,10 +7,10 @@ datasource db {
   provider = "postgresql"
 }
 
-enum PapelUsuario {
+enum UserRole {
   ADMIN
-  ADVOGADO
-  SECRETARIA
+  LAWYER
+  SECRETARY
 }
 
 model Usuario {
@@ -18,7 +18,7 @@ model Usuario {
   name         String
   email        String       @unique
   passwordHash String
-  role         PapelUsuario
+  role         UserRole
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 }
