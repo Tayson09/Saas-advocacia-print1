@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { z, ZodType} from "zod";
-import { ValidationError, ValidationIssue } from "../helpers/erros/validation-error.js";
+import { ValidationError, ValidationIssue } from "../helpers/errors/validation-error.js";
 
 interface RequestSchemas {
   body?: ZodType;

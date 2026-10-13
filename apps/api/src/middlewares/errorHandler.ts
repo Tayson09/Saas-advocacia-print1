@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { AppError } from "../helpers/erros/app-error.js";
-import { ValidationError } from "../helpers/erros/validation-error.js";
+import { AppError } from "../helpers/errors/app-error.js";
+import { ValidationError } from "../helpers/errors/validation-error.js";
 import { Prisma } from "../generated/prisma/client.js";
 import { StatusCodes } from "http-status-codes";
 
