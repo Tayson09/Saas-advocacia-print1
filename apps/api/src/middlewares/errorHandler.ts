@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { AppError } from "../helpers/erros/app-error.js";
+import { ValidationError } from "../helpers/erros/validation-error.js";
 import { Prisma } from "../generated/prisma/client.js";
 import { StatusCodes } from "http-status-codes";
 
@@ -10,6 +11,15 @@ export function errorHandler(
   next: NextFunction
 ) {
   if (res.headersSent) return next(err);
+
+  if (err instanceof ValidationError) {
+    return res.status(err.statusCode).json({
+      status: "error",
+      code: err.code,
+      message: err.message,
+      details: err.details
+    });
+  }
 
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
