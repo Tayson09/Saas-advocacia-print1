@@ -1,16 +1,4 @@
-import "dotenv/config";
-import express from "express";
+// src/server.ts
+import app from "./app.js";
 
-const app = express();
-
-app.use(express.json());
-
-app.get("/health", (_req, res) => {
-  res.json({ status: "ok" });
-});
-
-const port = Number(process.env.PORT ?? 3000);
-
-app.listen(port, () => {
-  console.log(`API disponível em http://localhost:${port}`);
-});
+app.listen(3000, () => console.log("Servidor na porta 3000"));
