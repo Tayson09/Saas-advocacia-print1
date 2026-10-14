@@ -1,0 +1,31 @@
+/* reset/fonte do starter + tokens do Figma */
+@import '../assets/base.css';
+@import './tokens.css';
+
+/* sobrescreve o tema escuro do starter pelo tema claro das telas de auth */
+body {
+  display: block;
+  min-height: 100vh;
+  overflow: auto;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  user-select: none;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input {
+  font-family: inherit;
+}
+
+a {
+  color: var(--color-primary);
+}

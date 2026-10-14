@@ -1,0 +1,82 @@
+.auth-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+/* painel lateral azul-marinho (324px, altura total) */
+.auth-panel {
+  flex-shrink: 0;
+  width: 324px;
+  background: var(--color-panel);
+}
+
+/* área de conteúdo à direita do painel */
+.auth-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* header utility */
+.auth-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 40px;
+  height: 96px;
+  padding: 0 48px;
+}
+
+.auth-header__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  line-height: 15px;
+  color: var(--color-muted);
+}
+
+.auth-header__help {
+  font-weight: 500;
+  text-decoration: none;
+}
+
+/* conteúdo central (440px) */
+.auth-main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 28px 0;
+}
+
+/* footer legal */
+.auth-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 80px;
+  padding: 0 48px;
+  font-size: 11px;
+  line-height: 13px;
+  color: var(--color-muted);
+}
+
+.auth-footer__links {
+  display: inline-flex;
+  gap: 24px;
+}
+
+.auth-footer__links a {
+  color: var(--color-muted);
+  text-decoration: none;
+}
+
+/* telas estreitas: oculta o painel lateral */
+@media (max-width: 860px) {
+  .auth-panel {
+    display: none;
+  }
+}

@@ -1,0 +1,42 @@
+.cadastro {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 440px;
+}
+
+.cadastro__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cadastro__password {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cadastro__consent-error {
+  font-size: 12px;
+  color: var(--color-danger);
+}
+
+.cadastro__return {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.cadastro__return a {
+  font-weight: 500;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.cadastro__checking {
+  font-size: 14px;
+  color: var(--color-muted);
+}
