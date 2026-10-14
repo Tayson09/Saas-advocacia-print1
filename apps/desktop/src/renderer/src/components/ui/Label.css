@@ -1,0 +1,11 @@
+.ui-label {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--color-label);
+}
+
+.ui-label__required {
+  color: var(--color-danger);
+}
