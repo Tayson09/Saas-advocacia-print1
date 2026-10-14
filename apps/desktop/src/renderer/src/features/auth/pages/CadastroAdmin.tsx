@@ -19,6 +19,21 @@ type FieldErrors = Partial<
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
+type FormValues = {
+  name: string
+  email: string
+  password: string
+  confirmPassword: string
+  consent: boolean
+}
+
+// extrai a mensagem (pt-br, vinda do schema) do primeiro erro de um campo específico
+function fieldError(field: keyof FieldErrors, values: FormValues): string | undefined {
+  const result = registerAdminSchema.safeParse(values)
+  if (result.success) return undefined
+  return result.error.issues.find((issue) => issue.path[0] === field)?.message
+}
+
 function CadastroAdmin(): React.JSX.Element {
   const navigate = useNavigate()
   const [checking, setChecking] = useState(true)
@@ -117,6 +132,18 @@ function CadastroAdmin(): React.JSX.Element {
     setSubmitError('Não foi possível concluir o cadastro.')
   }
 
+  const values: FormValues = { name, email, password, confirmPassword, consent }
+
+  // mostra o erro do campo ao sair dele (primeiro blur)
+  function handleBlur(field: keyof FieldErrors): void {
+    setErrors((prev) => ({ ...prev, [field]: fieldError(field, values) }))
+  }
+
+  // reavalia o erro de um campo apenas se ele já estiver visível — não cria erro em campo intocado
+  function revalidate(field: keyof FieldErrors, nextValues: FormValues): void {
+    setErrors((prev) => (prev[field] ? { ...prev, [field]: fieldError(field, nextValues) } : prev))
+  }
+
   if (checking) {
     return (
       <AuthLayout>
@@ -145,7 +172,12 @@ function CadastroAdmin(): React.JSX.Element {
           <Input
             label="Nome completo"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              const next = e.target.value
+              setName(next)
+              revalidate('name', { ...values, name: next })
+            }}
+            onBlur={() => handleBlur('name')}
             valid={nameValid}
             error={errors.name}
             placeholder="Seu nome completo"
@@ -156,7 +188,12 @@ function CadastroAdmin(): React.JSX.Element {
             label="E-mail institucional"
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              const next = e.target.value
+              setEmail(next)
+              revalidate('email', { ...values, email: next })
+            }}
+            onBlur={() => handleBlur('email')}
             valid={emailValid}
             error={errors.email}
             placeholder="nome@instituicao.com.br"
@@ -168,7 +205,15 @@ function CadastroAdmin(): React.JSX.Element {
               label="Senha"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                const next = e.target.value
+                setPassword(next)
+                const nextValues = { ...values, password: next }
+                revalidate('password', nextValues)
+                // confirmação cruza com a senha: reavalia junto para não travar em "não coincidem"
+                revalidate('confirmPassword', nextValues)
+              }}
+              onBlur={() => handleBlur('password')}
               error={errors.password}
               placeholder="Crie uma senha"
               autoComplete="new-password"
@@ -180,13 +225,25 @@ function CadastroAdmin(): React.JSX.Element {
             label="Confirme sua senha"
             type="password"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={(e) => {
+              const next = e.target.value
+              setConfirmPassword(next)
+              revalidate('confirmPassword', { ...values, confirmPassword: next })
+            }}
+            onBlur={() => handleBlur('confirmPassword')}
             error={errors.confirmPassword}
             placeholder="Repita a senha"
             autoComplete="new-password"
           />
 
-          <Checkbox checked={consent} onChange={(e) => setConsent(e.target.checked)}>
+          <Checkbox
+            checked={consent}
+            onChange={(e) => {
+              const next = e.target.checked
+              setConsent(next)
+              revalidate('consent', { ...values, consent: next })
+            }}
+          >
             Ao criar sua conta, você concorda com os{' '}
             <a href="#" onClick={(e) => e.preventDefault()}>
               Termos de uso
