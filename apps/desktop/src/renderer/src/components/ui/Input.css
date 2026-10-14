@@ -1,0 +1,78 @@
+.ui-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ui-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  height: 48px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition:
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.ui-input:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-info-bg);
+}
+
+.ui-input--error {
+  border-color: var(--color-danger);
+}
+
+.ui-input--error:focus-within {
+  box-shadow: 0 0 0 3px var(--color-danger-bg);
+}
+
+.ui-input__icon {
+  display: inline-flex;
+  color: var(--color-muted);
+}
+
+.ui-input__control {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--color-label);
+  font-size: 14px;
+}
+
+.ui-input__control::placeholder {
+  color: var(--color-muted);
+}
+
+.ui-input__toggle {
+  display: inline-flex;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-muted);
+}
+
+.ui-input__toggle:hover {
+  color: var(--color-text);
+}
+
+.ui-input__valid {
+  display: inline-flex;
+  color: var(--color-success);
+}
+
+.ui-field__error {
+  font-size: 12px;
+  color: var(--color-danger);
+}
+
+.ui-field__hint {
+  font-size: 12px;
+  color: var(--color-muted);
+}
