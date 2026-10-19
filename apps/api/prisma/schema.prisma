@@ -14,20 +14,22 @@ enum UserRole {
 }
 
 model User {
-  id           String       @id @default(uuid()) @db.Uuid
-  name         String
-  email        String       @unique
-  passwordHash String       @map("password_hash")
-  role         UserRole
-  auditLogs AuditLog[]
-  createdAt    DateTime     @default(now()) @map("created_at")
-  updatedAt    DateTime     @updatedAt  @map("updated_at")
+  id            String         @id @default(uuid()) @db.Uuid
+  name          String
+  email         String         @unique
+  passwordHash  String         @map("password_hash")
+  role          UserRole
+  isActive      Boolean        @default(true) @map("is_active")
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
 
   @@map("users")
 }
 
 model SystemSetup {
-  id Int @id
+  id          Int      @id
   completedAt DateTime @default(now()) @map("completed_at")
 
   @@map("system_setup")
@@ -42,4 +44,23 @@ model AuditLog {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("audit_logs")
+}
+
+model RefreshToken {
+  id                String    @id @default(uuid()) @db.Uuid
+  userId            String    @map("user_id") @db.Uuid
+  familyId          String    @map("family_id") @db.Uuid
+  tokenHash         String    @unique @map("token_hash")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  expiresAt         DateTime  @map("expires_at")
+  usedAt            DateTime? @map("used_at")
+  revokedAt         DateTime? @map("revoked_at")
+  replacedByTokenId String?   @map("replace_by_token_id") @db.Uuid
+  sessionExpiresAt  DateTime  @map("session_expires_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([userId])
+  @@index([familyId])
+  @@map("refresh_token")
 }
