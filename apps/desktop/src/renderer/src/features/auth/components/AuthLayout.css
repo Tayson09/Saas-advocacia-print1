@@ -11,37 +11,41 @@
   width: 380px;
   background: var(--color-panel);
   display: flex;
-  flex-direction: column;
-  padding: 48px 40px;
-  gap: 12px;
+  align-items: center;
+  justify-content: center;
 }
 
-.auth-panel__logo {
+/* bloco central da marca */
+.auth-panel__brand {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 20px;
-}
-
-.auth-panel__wordmark {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: 0;
+  text-align: center;
 }
 
 .auth-panel__name {
+  margin: 20px 0 0;
   font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.3px;
+  font-weight: 800;
+  letter-spacing: 5px;
   color: #ffffff;
-  line-height: 1.2;
+  line-height: 1;
+}
+
+.auth-panel__divider {
+  width: 36px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.25);
+  margin: 14px auto;
 }
 
 .auth-panel__tagline {
-  font-size: 12px;
+  margin: 0;
+  font-size: 10px;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.5);
-  letter-spacing: 0.4px;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 2px;
   text-transform: uppercase;
 }
 
