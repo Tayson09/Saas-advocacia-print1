@@ -1,5 +1,5 @@
 import './Login.css'
-import { FormEvent, useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowRight, LockKeyhole } from 'lucide-react'
 import AuthLayout from '../components/AuthLayout'
@@ -9,21 +9,45 @@ import Button from '../../../components/ui/Button'
 import Checkbox from '../../../components/ui/Checkbox'
 import Alert from '../../../components/ui/Alert'
 import { login } from '../api'
+import { useAuth } from '../context'
+import { saveSession, saveRememberedEmail, clearRememberedEmail, getRememberedEmail } from '../session'
 
 function Login(): React.JSX.Element {
   const navigate = useNavigate()
-  const [email, setEmail] = useState('')
+  const { setUser, isAuthenticated } = useAuth()
+
+  const [email, setEmail] = useState(() => getRememberedEmail())
   const [password, setPassword] = useState('')
+  const [rememberEmail, setRememberEmail] = useState(() => Boolean(getRememberedEmail()))
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (isAuthenticated) navigate('/dashboard', { replace: true })
+  }, [isAuthenticated, navigate])
 
   async function handleSubmit(event: FormEvent): Promise<void> {
     event.preventDefault()
     setError('')
     setLoading(true)
+
     try {
-      // TODO(RF01): stub de login — backend ainda não expõe autenticação
-      await login({ email, password })
+      const data = await login({ email, password })
+
+      saveSession({
+        accessToken: data.accessToken,
+        refreshToken: data.refreshRawToken,
+        user: data.user
+      })
+
+      if (rememberEmail) {
+        saveRememberedEmail(email)
+      } else {
+        clearRememberedEmail()
+      }
+
+      setUser(data.user)
+      navigate('/dashboard', { replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Não foi possível entrar.')
     } finally {
@@ -60,7 +84,12 @@ function Login(): React.JSX.Element {
           />
 
           <div className="login__preferences">
-            <Checkbox>Lembrar meu e-mail</Checkbox>
+            <Checkbox
+              checked={rememberEmail}
+              onChange={(e) => setRememberEmail(e.target.checked)}
+            >
+              Lembrar meu e-mail
+            </Checkbox>
             <a className="login__recover" href="#" onClick={(e) => e.preventDefault()}>
               Esqueci minha senha
             </a>
@@ -69,7 +98,7 @@ function Login(): React.JSX.Element {
           {error && <Alert variant="danger">{error}</Alert>}
 
           <Button type="submit" fullWidth disabled={loading} rightIcon={<ArrowRight size={16} />}>
-            Entrar
+            {loading ? 'Entrando...' : 'Entrar'}
           </Button>
         </form>
 
