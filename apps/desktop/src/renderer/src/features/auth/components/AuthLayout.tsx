@@ -6,25 +6,51 @@ interface AuthLayoutProps {
   children: ReactNode
 }
 
-function ScalesIcon(): React.JSX.Element {
+function SealLogo(): React.JSX.Element {
   return (
-    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
-      {/* base */}
-      <line x1="13" y1="36" x2="31" y2="36" stroke="white" strokeWidth="2" strokeLinecap="round" strokeOpacity="0.85" />
-      {/* coluna */}
-      <line x1="22" y1="34" x2="22" y2="17" stroke="white" strokeWidth="2" strokeLinecap="round" strokeOpacity="0.85" />
-      {/* viga */}
-      <line x1="6" y1="17" x2="38" y2="17" stroke="white" strokeWidth="2" strokeLinecap="round" strokeOpacity="0.85" />
-      {/* ornamento topo */}
-      <circle cx="22" cy="13" r="3.5" fill="white" fillOpacity="0.9" />
-      {/* fio esquerdo */}
-      <line x1="6" y1="17" x2="6" y2="25" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeOpacity="0.7" />
+    <svg width="96" height="96" viewBox="0 0 96 96" fill="none" aria-hidden="true">
+      {/* anel externo decorativo */}
+      <circle cx="48" cy="48" r="46" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
+
+      {/* anel interno */}
+      <circle cx="48" cy="48" r="38" stroke="rgba(255,255,255,0.08)" strokeWidth="0.75" />
+
+      {/* traços decorativos (12h, 3h, 6h, 9h) */}
+      <line x1="48" y1="2"  x2="48" y2="10" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="94" y1="48" x2="86" y2="48" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="48" y1="94" x2="48" y2="86" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="2"  y1="48" x2="10" y2="48" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" strokeLinecap="round" />
+
+      {/* traços menores (45°, 135°, 225°, 315°) */}
+      <line x1="80" y1="16" x2="75" y2="21" stroke="rgba(255,255,255,0.18)" strokeWidth="1" strokeLinecap="round" />
+      <line x1="80" y1="80" x2="75" y2="75" stroke="rgba(255,255,255,0.18)" strokeWidth="1" strokeLinecap="round" />
+      <line x1="16" y1="80" x2="21" y2="75" stroke="rgba(255,255,255,0.18)" strokeWidth="1" strokeLinecap="round" />
+      <line x1="16" y1="16" x2="21" y2="21" stroke="rgba(255,255,255,0.18)" strokeWidth="1" strokeLinecap="round" />
+
+      {/* --- balança --- */}
+
+      {/* ornamento topo (pivot) */}
+      <circle cx="48" cy="26" r="4" fill="white" fillOpacity="0.95" />
+
+      {/* coluna central */}
+      <rect x="46.5" y="26" width="3" height="32" rx="1.5" fill="white" fillOpacity="0.9" />
+
+      {/* viga horizontal */}
+      <rect x="20" y="36" width="56" height="2.5" rx="1.25" fill="white" fillOpacity="0.9" />
+
+      {/* correntes */}
+      <line x1="20" y1="38.5" x2="20" y2="52" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="76" y1="38.5" x2="76" y2="52" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" strokeLinecap="round" />
+
       {/* bandeja esquerda */}
-      <path d="M2 25 Q6 29 10 25" stroke="white" strokeWidth="1.5" strokeLinecap="round" fill="none" strokeOpacity="0.85" />
-      {/* fio direito */}
-      <line x1="38" y1="17" x2="38" y2="25" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeOpacity="0.7" />
+      <path d="M10 52 Q20 63 30 52" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none" strokeOpacity="0.9" />
+
       {/* bandeja direita */}
-      <path d="M34 25 Q38 29 42 25" stroke="white" strokeWidth="1.5" strokeLinecap="round" fill="none" strokeOpacity="0.85" />
+      <path d="M66 52 Q76 63 86 52" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none" strokeOpacity="0.9" />
+
+      {/* base dupla */}
+      <rect x="37" y="58" width="22" height="2" rx="1" fill="white" fillOpacity="0.7" />
+      <rect x="30" y="60" width="36" height="2.5" rx="1.25" fill="white" fillOpacity="0.85" />
     </svg>
   )
 }
@@ -33,12 +59,11 @@ function AuthLayout({ children }: AuthLayoutProps): React.JSX.Element {
   return (
     <div className="auth-layout">
       <aside className="auth-panel" aria-hidden="true">
-        <div className="auth-panel__logo">
-          <ScalesIcon />
-          <div className="auth-panel__wordmark">
-            <span className="auth-panel__name">SaaS Advocacia</span>
-            <span className="auth-panel__tagline">Sistema de gestão jurídica</span>
-          </div>
+        <div className="auth-panel__brand">
+          <SealLogo />
+          <p className="auth-panel__name">ADVOCACIA</p>
+          <div className="auth-panel__divider" />
+          <p className="auth-panel__tagline">Sistema de Gestão Jurídica</p>
         </div>
       </aside>
 
