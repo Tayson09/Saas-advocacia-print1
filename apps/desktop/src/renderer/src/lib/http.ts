@@ -29,20 +29,84 @@ export class ApiError extends Error {
   }
 }
 
-// wrapper de fetch que normaliza erros da API
-export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
+let isRefreshing = false
+let refreshSubscribers: Array<(token: string) => void> = []
+
+function onRefreshed(token: string): void {
+  refreshSubscribers.forEach((cb) => cb(token))
+  refreshSubscribers = []
+}
+
+async function tryRefresh(): Promise<string | null> {
+  const { getSession, updateAccessToken, clearSession } = await import(
+    '../features/auth/session'
+  )
+  const { refreshTokens } = await import('../features/auth/api')
+
+  const session = getSession()
+  if (!session) return null
+
+  try {
+    const data = await refreshTokens(session.refreshToken)
+    updateAccessToken(data.accessToken)
+    return data.accessToken
+  } catch {
+    clearSession()
+    return null
+  }
+}
+
+// wrapper de fetch que normaliza erros da API e inclui renovação automática de token
+export async function apiRequest<T>(path: string, init?: RequestInit, _retry = true): Promise<T> {
+  const { getSession } = await import('../features/auth/session')
+  const session = getSession()
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(init?.headers as Record<string, string>)
+  }
+
+  if (session?.accessToken) {
+    headers['Authorization'] = `Bearer ${session.accessToken}`
+  }
+
   let response: Response
   try {
-    response = await fetch(`${API_BASE_URL}${path}`, {
-      headers: { 'Content-Type': 'application/json' },
-      ...init
-    })
+    response = await fetch(`${API_BASE_URL}${path}`, { ...init, headers })
   } catch {
-    // falha de rede (API fora do ar, por exemplo)
     throw new ApiError(0, {
       status: 'error',
       code: 'NETWORK_ERROR',
       message: 'Não foi possível conectar ao servidor. Verifique sua conexão.'
+    })
+  }
+
+  if (response.status === 401 && _retry) {
+    if (!isRefreshing) {
+      isRefreshing = true
+      const newToken = await tryRefresh()
+      isRefreshing = false
+
+      if (newToken) {
+        onRefreshed(newToken)
+        return apiRequest<T>(path, init, false)
+      }
+
+      // refresh falhou: redireciona para login
+      window.location.hash = '/login'
+      throw new ApiError(401, {
+        status: 'error',
+        code: 'SESSION_EXPIRED',
+        message: 'Sua sessão expirou. Faça login novamente.'
+      })
+    }
+
+    // outra requisição já está renovando — aguarda o novo token
+    return new Promise((resolve, reject) => {
+      refreshSubscribers.push((token) => {
+        const retryHeaders = { ...headers, Authorization: `Bearer ${token}` }
+        apiRequest<T>(path, { ...init, headers: retryHeaders }, false).then(resolve, reject)
+      })
     })
   }
 
