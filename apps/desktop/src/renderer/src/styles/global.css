@@ -3,18 +3,28 @@
 @import './tokens.css';
 
 /* sobrescreve o tema escuro do starter pelo tema claro das telas de auth */
+html,
+body {
+  height: 100vh;
+  overflow: hidden;
+}
+
 body {
   display: block;
-  min-height: 100vh;
-  overflow: auto;
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
   user-select: none;
 }
 
+/* esconde scrollbar em todo o app (Electron — app nativo) */
+::-webkit-scrollbar {
+  display: none;
+}
+
 #root {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 button {
