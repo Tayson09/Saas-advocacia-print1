@@ -185,7 +185,7 @@ function CadastroAdmin(): React.JSX.Element {
           />
 
           <Input
-            label="E-mail institucional"
+            label="E-mail"
             type="email"
             value={email}
             onChange={(e) => {
@@ -196,7 +196,7 @@ function CadastroAdmin(): React.JSX.Element {
             onBlur={() => handleBlur('email')}
             valid={emailValid}
             error={errors.email}
-            placeholder="nome@instituicao.com.br"
+            placeholder="seuemail@gmail.com"
             autoComplete="email"
           />
 
