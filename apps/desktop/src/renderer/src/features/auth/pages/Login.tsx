@@ -61,16 +61,16 @@ function Login(): React.JSX.Element {
         <PageIntro
           label="ACESSO AO SISTEMA"
           title="Acesse sua conta"
-          description="Use seu e-mail institucional e senha para continuar"
+          description="Use seu e-mail e senha para continuar"
         />
 
         <form className="login__form" onSubmit={handleSubmit}>
           <Input
-            label="E-mail institucional"
+            label="E-mail"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="nome@instituicao.com.br"
+            placeholder="seuemail@gmail.com"
             autoComplete="username"
           />
 
@@ -106,8 +106,8 @@ function Login(): React.JSX.Element {
           <div className="login__first-access-intro">
             <strong className="login__first-access-title">Primeiro acesso?</strong>
             <p className="login__first-access-text">
-              Configure o primeiro administrador. Se sua instituição já usa o sistema, peça acesso
-              ao administrador.
+              Configure o primeiro administrador. Se já existe uma conta no sistema, peça acesso ao
+              administrador.
             </p>
           </div>
           <Button
