@@ -20,8 +20,8 @@ const instructions: Instruction[] = [
   },
   {
     icon: <Mail size={15} />,
-    title: 'Informe seu e-mail institucional',
-    description: 'Ele será usado para criar sua conta e identificar seu acesso.'
+    title: 'Informe seu e-mail',
+    description: 'Use seu e-mail pessoal, como um endereço do Gmail.'
   },
   {
     icon: <UserCheck size={15} />,
