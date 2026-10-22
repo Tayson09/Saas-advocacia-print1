@@ -45,6 +45,7 @@ function PasswordStrength({ value }: PasswordStrengthProps): React.JSX.Element {
         )}
       </div>
 
+      <p className="password-strength__hint">A senha deve conter:</p>
       <ul className="password-strength__requirements">
         {passwordRequirements.map((req) => {
           const ok = req.test(value)
