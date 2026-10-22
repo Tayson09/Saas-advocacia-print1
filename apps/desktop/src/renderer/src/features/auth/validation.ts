@@ -18,6 +18,16 @@ const password = z
   .regex(/\d/, 'A senha deve conter ao menos um número')
   .regex(/[^A-Za-z0-9]/, 'A senha deve conter ao menos um caractere especial')
 
+export const loginSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(1, 'E-mail é obrigatório')
+    .pipe(z.email('E-mail inválido')),
+  password: z.string().min(1, 'Senha é obrigatória')
+})
+
 export const registerAdminSchema = z
   .object({
     name: z.string().trim().min(2, 'Nome muito curto'),
