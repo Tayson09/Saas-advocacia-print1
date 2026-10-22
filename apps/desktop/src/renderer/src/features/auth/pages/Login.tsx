@@ -8,9 +8,13 @@ import Input from '../../../components/ui/Input'
 import Button from '../../../components/ui/Button'
 import Checkbox from '../../../components/ui/Checkbox'
 import Alert from '../../../components/ui/Alert'
+import { ApiError } from '../../../lib/http'
 import { login } from '../api'
 import { useAuth } from '../context'
 import { saveSession, saveRememberedEmail, clearRememberedEmail, getRememberedEmail } from '../session'
+import { loginSchema } from '../validation'
+
+type LoginFieldErrors = Partial<Record<'email' | 'password', string>>
 
 function Login(): React.JSX.Element {
   const navigate = useNavigate()
@@ -19,6 +23,7 @@ function Login(): React.JSX.Element {
   const [email, setEmail] = useState(() => getRememberedEmail())
   const [password, setPassword] = useState('')
   const [rememberEmail, setRememberEmail] = useState(() => Boolean(getRememberedEmail()))
+  const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({})
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -29,10 +34,22 @@ function Login(): React.JSX.Element {
   async function handleSubmit(event: FormEvent): Promise<void> {
     event.preventDefault()
     setError('')
-    setLoading(true)
 
+    const result = loginSchema.safeParse({ email, password })
+    if (!result.success) {
+      const nextErrors: LoginFieldErrors = {}
+      for (const issue of result.error.issues) {
+        const field = issue.path[0] as keyof LoginFieldErrors
+        if (field && !nextErrors[field]) nextErrors[field] = issue.message
+      }
+      setFieldErrors(nextErrors)
+      return
+    }
+
+    setFieldErrors({})
+    setLoading(true)
     try {
-      const data = await login({ email, password })
+      const data = await login(result.data)
 
       saveSession({
         accessToken: data.accessToken,
@@ -49,7 +66,11 @@ function Login(): React.JSX.Element {
       setUser(data.user)
       navigate('/dashboard', { replace: true })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Não foi possível entrar.')
+      if (err instanceof ApiError && err.code === 'USER_ACCOUNT_DISABLED') {
+        setError('Sua conta está inativa. Entre em contato com o administrador do sistema.')
+      } else {
+        setError(err instanceof Error ? err.message : 'Não foi possível entrar.')
+      }
     } finally {
       setLoading(false)
     }
@@ -64,12 +85,16 @@ function Login(): React.JSX.Element {
           description="Use seu e-mail e senha para continuar"
         />
 
-        <form className="login__form" onSubmit={handleSubmit}>
+        <form className="login__form" onSubmit={handleSubmit} noValidate>
           <Input
             label="E-mail"
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value)
+              setFieldErrors((prev) => ({ ...prev, email: undefined }))
+            }}
+            error={fieldErrors.email}
             placeholder="seuemail@gmail.com"
             autoComplete="username"
           />
@@ -78,7 +103,11 @@ function Login(): React.JSX.Element {
             label="Senha"
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value)
+              setFieldErrors((prev) => ({ ...prev, password: undefined }))
+            }}
+            error={fieldErrors.password}
             placeholder="Sua senha"
             autoComplete="current-password"
           />

@@ -66,7 +66,8 @@ export async function apiRequest<T>(path: string, init?: RequestInit, _retry = t
     ...(init?.headers as Record<string, string>)
   }
 
-  if (session?.accessToken) {
+  const isLoginRequest = path === '/auth/login'
+  if (session?.accessToken && !isLoginRequest) {
     headers['Authorization'] = `Bearer ${session.accessToken}`
   }
 
@@ -77,11 +78,11 @@ export async function apiRequest<T>(path: string, init?: RequestInit, _retry = t
     throw new ApiError(0, {
       status: 'error',
       code: 'NETWORK_ERROR',
-      message: 'Não foi possível conectar ao servidor. Verifique sua conexão.'
+      message: 'Não foi possível conectar à API. Verifique se o backend está ativo em localhost:3000.'
     })
   }
 
-  if (response.status === 401 && _retry) {
+  if (response.status === 401 && _retry && !isLoginRequest && session?.accessToken) {
     if (!isRefreshing) {
       isRefreshing = true
       const newToken = await tryRefresh()
@@ -113,7 +114,15 @@ export async function apiRequest<T>(path: string, init?: RequestInit, _retry = t
   const data = await response.json().catch(() => null)
 
   if (!response.ok) {
-    throw new ApiError(response.status, data as ApiErrorBody)
+    const body: ApiErrorBody =
+      data && typeof data === 'object' && 'message' in data
+        ? (data as ApiErrorBody)
+        : {
+            status: 'error',
+            code: 'HTTP_ERROR',
+            message: `A API retornou um erro (${response.status}).`
+          }
+    throw new ApiError(response.status, body)
   }
 
   return data as T
