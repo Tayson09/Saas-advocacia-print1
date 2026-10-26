@@ -7,14 +7,22 @@ import routes from "./routes.js";
 
 const app = express();
 
-// Origens liberadas no CORS — DEV ONLY (dev server do Electron/Vite).
-// Em produção, usar a origem do app empacotado (ou configurar por env).
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:5174" // fallback: Vite usa quando a 5173 está ocupada
-];
-
-app.use(cors({ origin: allowedOrigins, credentials: true }));
+// CORS para o app desktop (Electron): em dev o renderer roda em alguma
+// porta do Vite (localhost:5173+, podendo variar) e em build empacotado
+// carrega via file://, enviando Origin "null". Liberamos qualquer origem
+// local e requisições sem origem (apps nativos/curl) — a API é local.
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      const isLocal =
+        !origin ||
+        origin === "null" ||
+        /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+      callback(null, isLocal);
+    },
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
