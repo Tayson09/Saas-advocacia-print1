@@ -61,7 +61,7 @@ function AuthLayout({ children }: AuthLayoutProps): React.JSX.Element {
       <aside className="auth-panel" aria-hidden="true">
         <div className="auth-panel__brand">
           <SealLogo />
-          <p className="auth-panel__name">ADVOCACIA</p>
+          <p className="auth-panel__name">VERUM</p>
           <div className="auth-panel__divider" />
           <p className="auth-panel__tagline">Sistema de Gestão Jurídica</p>
         </div>
@@ -86,7 +86,7 @@ function AuthLayout({ children }: AuthLayoutProps): React.JSX.Element {
         <main className="auth-main">{children}</main>
 
         <footer className="auth-footer">
-          <span>© 2026 SaaS Advocacia. Todos os direitos reservados.</span>
+          <span>© 2026 Verum. Todos os direitos reservados.</span>
           <span className="auth-footer__links">
             <a href="#" onClick={(e) => e.preventDefault()}>
               Privacidade

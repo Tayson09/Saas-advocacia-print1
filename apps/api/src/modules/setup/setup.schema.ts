@@ -20,7 +20,11 @@ export const registerAdminSchema = {
       .string({ error: "Nome é obrigatório" })
       .trim()
       .min(1, "Nome é obrigatório")
-      .min(2, "Nome muito curto"),
+      .min(2, "Nome muito curto")
+      .regex(
+        /^\p{L}[\p{L}\s.'-]*$/u,
+        "Informe um nome válido (somente letras)"
+      ),
     email: z
       .string({ error: "E-mail é obrigatório" })
       .trim()
