@@ -11,7 +11,7 @@ import Checkbox from '../../../components/ui/Checkbox'
 import Alert from '../../../components/ui/Alert'
 import { ApiError } from '../../../lib/http'
 import { getSetupStatus, registerAdmin } from '../api'
-import { registerAdminSchema } from '../validation'
+import { registerAdminSchema, isValidName } from '../validation'
 
 type FieldErrors = Partial<
   Record<'name' | 'email' | 'password' | 'confirmPassword' | 'consent', string>
@@ -139,9 +139,18 @@ function CadastroAdmin(): React.JSX.Element {
     setErrors((prev) => ({ ...prev, [field]: fieldError(field, values) }))
   }
 
-  // reavalia o erro de um campo apenas se ele já estiver visível — não cria erro em campo intocado
+  // reavalia o erro de um campo em tempo real quando faz sentido avisar:
+  // - se o erro já está visível (campo já tocado), mantém atualizado ao digitar;
+  // - se é a confirmação de senha e já há algo digitado, avisa a divergência
+  //   enquanto o usuário digita, sem esperar o blur ou o envio.
   function revalidate(field: keyof FieldErrors, nextValues: FormValues): void {
-    setErrors((prev) => (prev[field] ? { ...prev, [field]: fieldError(field, nextValues) } : prev))
+    setErrors((prev) => {
+      const shouldShow =
+        prev[field] !== undefined ||
+        (field === 'confirmPassword' && nextValues.confirmPassword.length > 0)
+      if (!shouldShow) return prev
+      return { ...prev, [field]: fieldError(field, nextValues) }
+    })
   }
 
   if (checking) {
@@ -152,7 +161,7 @@ function CadastroAdmin(): React.JSX.Element {
     )
   }
 
-  const nameValid = name.trim().length >= 2
+  const nameValid = isValidName(name)
   const emailValid = emailPattern.test(email.trim())
 
   return (

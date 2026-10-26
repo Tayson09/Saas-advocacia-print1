@@ -15,6 +15,21 @@ import { saveSession, saveRememberedEmail, clearRememberedEmail, getRememberedEm
 import { loginSchema } from '../validation'
 
 type LoginFieldErrors = Partial<Record<'email' | 'password', string>>
+type LoginField = 'email' | 'password'
+
+// requisitos de senha, exibidos como instrução abaixo do campo
+const passwordHint =
+  'A senha deve ter no mínimo 8 caracteres, com letra maiúscula, minúscula, número e caractere especial.'
+
+// extrai a mensagem do primeiro erro de um campo específico
+function fieldError(
+  field: LoginField,
+  values: { email: string; password: string }
+): string | undefined {
+  const result = loginSchema.safeParse(values)
+  if (result.success) return undefined
+  return result.error.issues.find((issue) => issue.path[0] === field)?.message
+}
 
 function Login(): React.JSX.Element {
   const navigate = useNavigate()
@@ -76,6 +91,11 @@ function Login(): React.JSX.Element {
     }
   }
 
+  // valida um campo ao sair dele, mostrando a mensagem quando é deixado vazio
+  function handleBlur(field: LoginField): void {
+    setFieldErrors((prev) => ({ ...prev, [field]: fieldError(field, { email, password }) }))
+  }
+
   return (
     <AuthLayout>
       <div className="login">
@@ -94,6 +114,7 @@ function Login(): React.JSX.Element {
               setEmail(e.target.value)
               setFieldErrors((prev) => ({ ...prev, email: undefined }))
             }}
+            onBlur={() => handleBlur('email')}
             error={fieldErrors.email}
             placeholder="seuemail@gmail.com"
             autoComplete="username"
@@ -107,7 +128,9 @@ function Login(): React.JSX.Element {
               setPassword(e.target.value)
               setFieldErrors((prev) => ({ ...prev, password: undefined }))
             }}
+            onBlur={() => handleBlur('password')}
             error={fieldErrors.password}
+            hint={passwordHint}
             placeholder="Sua senha"
             autoComplete="current-password"
           />

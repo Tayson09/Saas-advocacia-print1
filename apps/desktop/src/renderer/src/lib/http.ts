@@ -74,11 +74,14 @@ export async function apiRequest<T>(path: string, init?: RequestInit, _retry = t
   let response: Response
   try {
     response = await fetch(`${API_BASE_URL}${path}`, { ...init, headers })
-  } catch {
+  } catch (err) {
+    // detalhe técnico vai para o console (programador); usuário vê mensagem amigável
+    console.error(`[API] falha ao conectar em ${API_BASE_URL}${path}:`, err)
     throw new ApiError(0, {
       status: 'error',
       code: 'NETWORK_ERROR',
-      message: 'Não foi possível conectar à API. Verifique se o backend está ativo em localhost:3000.'
+      message:
+        'Serviço temporariamente indisponível. Tente novamente em instantes. Se o problema persistir, contate o suporte.'
     })
   }
 
@@ -114,14 +117,17 @@ export async function apiRequest<T>(path: string, init?: RequestInit, _retry = t
   const data = await response.json().catch(() => null)
 
   if (!response.ok) {
-    const body: ApiErrorBody =
-      data && typeof data === 'object' && 'message' in data
-        ? (data as ApiErrorBody)
-        : {
-            status: 'error',
-            code: 'HTTP_ERROR',
-            message: `A API retornou um erro (${response.status}).`
-          }
+    const hasMessage = data && typeof data === 'object' && 'message' in data
+    if (!hasMessage) {
+      console.error(`[API] resposta ${response.status} sem corpo de erro para ${path}`)
+    }
+    const body: ApiErrorBody = hasMessage
+      ? (data as ApiErrorBody)
+      : {
+          status: 'error',
+          code: 'HTTP_ERROR',
+          message: 'Ocorreu um erro inesperado. Tente novamente em instantes.'
+        }
     throw new ApiError(response.status, body)
   }
 

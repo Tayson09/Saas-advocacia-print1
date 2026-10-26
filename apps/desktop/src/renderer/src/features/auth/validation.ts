@@ -28,9 +28,22 @@ export const loginSchema = z.object({
   password: z.string().min(1, 'Senha é obrigatória')
 })
 
+// nome: letras (com acento), espaços e pontuação simples — rejeita e-mails/números
+export const nameRegex = /^\p{L}[\p{L}\s.'-]*$/u
+
+export function isValidName(value: string): boolean {
+  const trimmed = value.trim()
+  return trimmed.length >= 2 && nameRegex.test(trimmed)
+}
+
 export const registerAdminSchema = z
   .object({
-    name: z.string().trim().min(2, 'Nome muito curto'),
+    name: z
+      .string()
+      .trim()
+      .min(1, 'Nome é obrigatório')
+      .min(2, 'Nome muito curto')
+      .regex(nameRegex, 'Informe um nome válido (somente letras)'),
     email: z
       .string()
       .trim()
