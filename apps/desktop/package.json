@@ -18,7 +18,11 @@
     "build:unpack": "npm run build && electron-builder --dir",
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "electron-vite build && electron-builder --mac",
-    "build:linux": "electron-vite build && electron-builder --linux"
+    "build:linux": "electron-vite build && electron-builder --linux",
+    "build:e2e": "electron-vite build",
+    "test:e2e": "npm run build:e2e && playwright test",
+    "test:e2e:headed": "npm run build:e2e && playwright test --ui",
+    "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",
@@ -32,6 +36,7 @@
     "@electron-toolkit/eslint-config-prettier": "^3.0.0",
     "@electron-toolkit/eslint-config-ts": "^3.1.0",
     "@electron-toolkit/tsconfig": "^2.0.0",
+    "@playwright/test": "^1.64.1",
     "@types/node": "^22.19.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
