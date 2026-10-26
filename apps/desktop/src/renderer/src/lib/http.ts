@@ -81,7 +81,7 @@ export async function apiRequest<T>(path: string, init?: RequestInit, _retry = t
       status: 'error',
       code: 'NETWORK_ERROR',
       message:
-        'Não foi possível conectar ao servidor. Verifique sua conexão com a internet e tente novamente em instantes.'
+        'Serviço temporariamente indisponível. Tente novamente em instantes. Se o problema persistir, contate o suporte.'
     })
   }
 
