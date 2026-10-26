@@ -89,15 +89,15 @@
 .auth-main {
   flex: 1;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
+  /* "safe center": centraliza quando cabe, mas alinha ao topo quando o
+     conteúdo é maior que a área — evita que o formulário seja cortado e
+     mantém o scroll acessível quando todos os erros são exibidos */
+  justify-content: safe center;
   min-height: 0;
   padding: 20px 0;
   overflow-y: auto;
-}
-
-.auth-main > * {
-  margin-block: auto;
 }
 
 /* footer legal */
