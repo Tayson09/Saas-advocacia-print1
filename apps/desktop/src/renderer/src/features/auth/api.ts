@@ -15,6 +15,23 @@ export interface RegisterAdminInput {
   password: string
 }
 
+export interface RegisterUserInput {
+  name: string
+  email: string
+  role: 'LAWYER' | 'SECRETARY'
+}
+
+export interface RegisterUserResponse {
+  user: {
+    id: string
+    name: string
+    email: string
+    role: string
+  }
+  // indica se o convite de configuração de senha foi enviado por e-mail
+  emailSent: boolean
+}
+
 export interface LoginInput {
   email: string
   password: string
@@ -39,6 +56,15 @@ export async function getSetupStatus(): Promise<{ registrationOpen: boolean }> {
 // POST /api/setup/admin -> cria o primeiro administrador do sistema
 export async function registerAdmin(input: RegisterAdminInput): Promise<AdminUser> {
   return apiRequest('/setup/admin', {
+    method: 'POST',
+    body: JSON.stringify(input)
+  })
+}
+
+// POST /api/user/register -> admin cadastra um novo usuário (advogado/secretário)
+// e dispara o convite de configuração de senha por e-mail
+export async function registerUser(input: RegisterUserInput): Promise<RegisterUserResponse> {
+  return apiRequest('/user/register', {
     method: 'POST',
     body: JSON.stringify(input)
   })
