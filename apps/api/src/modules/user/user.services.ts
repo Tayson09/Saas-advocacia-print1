@@ -64,15 +64,15 @@ export const UserService = {
         }, tx
       );
 
-      return {createdUser}
+      return createdUser;
     });
 
      let emailSent = true;
 
       try {
         await sendPasswordSetupEmail({
-          to: user.createdUser.email,
-          name: user.createdUser.name,
+          to: user.email,
+          name: user.name,
           token: setupToken,
       });
       } catch (error) {

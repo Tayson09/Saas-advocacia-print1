@@ -1,0 +1,111 @@
+.cadastro-usuario {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.cadastro-usuario__head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cadastro-usuario__eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--color-primary);
+}
+
+.cadastro-usuario__title {
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.cadastro-usuario__subtitle {
+  max-width: 620px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+.cadastro-usuario__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.cadastro-usuario__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.cadastro-usuario__fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.cadastro-usuario__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border);
+}
+
+.cadastro-usuario__aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.cadastro-usuario__tips {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.cadastro-usuario__tips-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-label);
+}
+
+.cadastro-usuario__tips-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding-left: var(--space-4);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+.cadastro-usuario__tips-list strong {
+  color: var(--color-label);
+}
+
+/* telas estreitas: empilha o formulário e o painel de ajuda */
+@media (max-width: 860px) {
+  .cadastro-usuario__grid {
+    grid-template-columns: 1fr;
+  }
+}

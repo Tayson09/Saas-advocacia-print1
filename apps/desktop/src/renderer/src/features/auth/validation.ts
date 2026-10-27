@@ -61,6 +61,54 @@ export const registerAdminSchema = z
 
 export type RegisterAdminForm = z.infer<typeof registerAdminSchema>
 
+// perfis que o administrador pode atribuir a novos usuários (espelha NewUserRole da API)
+export const assignableRoles = ['LAWYER', 'SECRETARY'] as const
+export type AssignableRole = (typeof assignableRoles)[number]
+
+// rótulos em pt-br dos perfis, usados nos selects e confirmações
+export const roleLabels: Record<string, string> = {
+  ADMIN: 'Administrador(a)',
+  LAWYER: 'Advogado(a)',
+  SECRETARY: 'Secretário(a)'
+}
+
+export const roleOptions = assignableRoles.map((value) => ({
+  value,
+  label: roleLabels[value]
+}))
+
+// cadastro de usuário feito pelo administrador: sem senha (o usuário define via e-mail)
+export const registerUserSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, 'Nome é obrigatório')
+    .min(2, 'Nome muito curto')
+    .regex(nameRegex, 'Informe um nome válido (somente letras)'),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(1, 'E-mail é obrigatório')
+    .pipe(z.email('E-mail inválido')),
+  role: z.enum(assignableRoles, { error: 'Selecione um perfil de acesso' })
+})
+
+export type RegisterUserForm = z.infer<typeof registerUserSchema>
+
+// definição de senha pelo usuário convidado (via link do e-mail)
+export const completeSetupSchema = z
+  .object({
+    password,
+    confirmPassword: z.string()
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'As senhas não coincidem',
+    path: ['confirmPassword']
+  })
+
+export type CompleteSetupForm = z.infer<typeof completeSetupSchema>
+
 // quantos requisitos a senha cumpre (0..5) — usado pelo medidor de força
 export function passwordScore(value: string): number {
   return passwordRequirements.filter((req) => req.test(value)).length

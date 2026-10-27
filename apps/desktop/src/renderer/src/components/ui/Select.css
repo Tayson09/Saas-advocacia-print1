@@ -1,0 +1,119 @@
+.ui-select__wrapper {
+  position: relative;
+}
+
+.ui-select {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 0 14px;
+  height: 48px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: left;
+  transition:
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.ui-select:focus-visible,
+.ui-select--open {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-info-bg);
+}
+
+.ui-select--error {
+  border-color: var(--color-danger);
+}
+
+.ui-select--error.ui-select--open,
+.ui-select--error:focus-visible {
+  box-shadow: 0 0 0 3px var(--color-danger-bg);
+}
+
+.ui-select__icon {
+  display: inline-flex;
+  color: var(--color-muted);
+}
+
+.ui-select__value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-label);
+  font-size: 14px;
+}
+
+.ui-select--placeholder .ui-select__value {
+  color: var(--color-muted);
+}
+
+.ui-select__chevron {
+  flex-shrink: 0;
+  color: var(--color-muted);
+  transition: transform 150ms;
+}
+
+.ui-select--open .ui-select__chevron {
+  transform: rotate(180deg);
+}
+
+/* dropdown */
+.ui-select__list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  max-height: 240px;
+  overflow-y: auto;
+  animation: ui-select-in 120ms ease-out;
+}
+
+.ui-select__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  color: var(--color-label);
+  cursor: pointer;
+}
+
+.ui-select__option--active {
+  background: var(--color-info-bg);
+}
+
+.ui-select__option--selected {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.ui-select__option--selected svg {
+  color: var(--color-primary);
+}
+
+@keyframes ui-select-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
