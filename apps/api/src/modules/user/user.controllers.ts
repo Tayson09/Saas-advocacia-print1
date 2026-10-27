@@ -11,7 +11,7 @@ export const UserController = {
 
     const result = await UserService.create(input, adminId, req.ip);
 
-    return res.status(StatusCodes.CREATED).json(result);
+    return res.status(StatusCodes.CREATED).json({user: result.user, emailSent: result.emailSent});
   },
 
   async completePasswordSetup(req: Request, res: Response) {

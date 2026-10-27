@@ -11,7 +11,11 @@ const envSchema = z.object({
   REFRESH_SECRET: z.string({ error: "REFRESH_SECRET é obrigatório" }).min(32, "o segredo do refresh eve possuir pelo menos 32 caracteres."),
 
   JWT_ISSUER:  z.string().default('api-advocacia'),
-  JWT_AUDIENCE: z.string().default('electron-app')
+  JWT_AUDIENCE: z.string().default('electron-app'),
+
+  API_KEY_RESEND: z.string({ error: "API_KEY_RESEND é obrigatória" }).startsWith("re_", "A chave do Resend deve começar com 're_'"),
+  EMAIL_FROM: z.string({ error: "EMAIL_FROM é obrigatório" }),
+  FRONTEND_URL: z.url({ error: "FRONTEND_URL deve ser uma URL válida" }) 
 });
 
 const _env = envSchema.safeParse(process.env);
