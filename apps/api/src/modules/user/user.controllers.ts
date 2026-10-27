@@ -5,13 +5,18 @@ import { CreateUserInput } from "./user.services.js";
 
 export const UserController = {
   async create(req: Request, res: Response) {
-    console.log("Chegou ao UserController.create");
 
     const adminId = res.locals.userId as string;
     const input = req.body as CreateUserInput;
 
     const result = await UserService.create(input, adminId, req.ip);
 
-    return res.status(StatusCodes.CREATED).json(result.user);
+    return res.status(StatusCodes.CREATED).json(result);
+  },
+
+  async completePasswordSetup(req: Request, res: Response) {
+    await UserService.completePasswordSetup(req.body);
+
+    return res.status(StatusCodes.OK).json({ message: "Senha configurada com sucesso!" });
   }
 }

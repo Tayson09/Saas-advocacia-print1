@@ -9,7 +9,6 @@ export const requireAdmin: RequestHandler = async (
   next: NextFunction
 ) => {
   try {
-    console.log("Entrou no requireAdmin");
     const userId = res.locals.userId as string | undefined;
 
     if (!userId) return next(new AppError("Autenticação necessária", StatusCodes.UNAUTHORIZED, "UNAUTHENTICATED"));
