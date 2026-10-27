@@ -6,7 +6,8 @@ import { auditRepository } from "../audit/audit.repository.js";
 import { AppError } from "../../helpers/errors/app-error.js";
 import { StatusCodes } from "http-status-codes";
 import type { UserRole } from "../../generated/prisma/enums.js";
-import { CompletePasswordSetupInput, completePasswordSetupSchema } from "./user.schema.js";
+import { CompletePasswordSetupInput } from "./user.schema.js";
+import { sendPasswordSetupEmail } from "../../lib/email.service.js";
 
 const PASSWORD_SETUP_TOKEN = 60 * 60 * 1000 // 1HORA
 
@@ -63,10 +64,23 @@ export const UserService = {
         }, tx
       );
 
-      return createdUser
+      return {createdUser}
     });
 
-    return {user, setupToken, expiresAt};
+     let emailSent = true;
+
+      try {
+        await sendPasswordSetupEmail({
+          to: user.createdUser.email,
+          name: user.createdUser.name,
+          token: setupToken,
+      });
+      } catch (error) {
+        emailSent = false;
+        console.error("Falha ao enviar convite de configuração", error);
+      }
+
+    return {user, emailSent};
   },
 
   async completePasswordSetup(input: CompletePasswordSetupInput) {
@@ -95,6 +109,6 @@ export const UserService = {
       });
 
       if (updated.count !== 1) throw invalidSetupToken();
-    })
+    });
   }
 }
