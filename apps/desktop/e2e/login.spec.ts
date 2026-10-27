@@ -11,14 +11,26 @@ test.describe('Login', () => {
     await expect(page.getByText('Senha é obrigatória')).toBeVisible()
   })
 
-  test('mostra erro de credenciais inválidas', async ({ page }) => {
-    await mockLoginError(page, 401, 'AUTH_INVALID_CREDENTIALS', 'E-mail ou senha incorretos')
+  test('mostra erro quando o e-mail não existe', async ({ page }) => {
+    await mockLoginError(page, 404, 'AUTH_USER_NOT_FOUND', 'Usuário não encontrado')
 
     await page.getByLabel('E-mail', { exact: true }).fill('ninguem@escritorio.com')
     await page.getByLabel('Senha', { exact: true }).fill('SenhaErrada1!')
     await page.getByRole('button', { name: 'Entrar' }).click()
 
-    await expect(page.getByRole('alert')).toContainText('E-mail ou senha incorretos')
+    await expect(page.getByRole('alert')).toContainText('Usuário não encontrado')
+    // continua na tela de login
+    await expect(page.getByText('Acesse sua conta')).toBeVisible()
+  })
+
+  test('mostra erro quando a senha está incorreta', async ({ page }) => {
+    await mockLoginError(page, 401, 'AUTH_INVALID_PASSWORD', 'Senha incorreta')
+
+    await page.getByLabel('E-mail', { exact: true }).fill('usuario@escritorio.com')
+    await page.getByLabel('Senha', { exact: true }).fill('SenhaErrada1!')
+    await page.getByRole('button', { name: 'Entrar' }).click()
+
+    await expect(page.getByRole('alert')).toContainText('Senha incorreta')
     // continua na tela de login
     await expect(page.getByText('Acesse sua conta')).toBeVisible()
   })

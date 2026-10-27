@@ -42,7 +42,7 @@ export async function mockLoginSuccess(page: Page, user: MockUser = DEFAULT_USER
   )
 }
 
-/** POST /api/auth/login -> erro (ex.: 401 AUTH_INVALID_CREDENTIALS, 403 USER_ACCOUNT_DISABLED). */
+/** POST /api/auth/login -> erro (ex.: 404 AUTH_USER_NOT_FOUND, 401 AUTH_INVALID_PASSWORD, 403 USER_ACCOUNT_DISABLED). */
 export async function mockLoginError(
   page: Page,
   status: number,

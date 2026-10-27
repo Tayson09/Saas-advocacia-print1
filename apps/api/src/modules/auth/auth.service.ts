@@ -26,13 +26,13 @@ export const AuthService = {
     const user = await userRepository.findByEmailWithPassword(input.email);
 
     if (!user) {
-      throw new AppError("E-mail ou senha incorretos", StatusCodes.UNAUTHORIZED, "AUTH_INVALID_CREDENTIALS");
+      throw new AppError("Usuário não encontrado", StatusCodes.NOT_FOUND, "AUTH_USER_NOT_FOUND");
     }
 
     const isValidPassoword = await argon2.verify(user.passwordHash, input.password);
 
     if (!isValidPassoword) {
-      throw new AppError("E-mail ou senha incorretos", StatusCodes.UNAUTHORIZED, "AUTH_INVALID_CREDENTIALS");
+      throw new AppError("Senha incorreta", StatusCodes.UNAUTHORIZED, "AUTH_INVALID_PASSWORD");
     }
 
     if (!user.isActive) {
