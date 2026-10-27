@@ -120,3 +120,23 @@ export async function mockRegisterUserError(
     fulfillJson(route, status, { status: 'error', code, message, details })
   )
 }
+
+/** POST /api/user/complete-setup -> 200 com a senha configurada. */
+export async function mockCompleteSetupSuccess(page: Page): Promise<void> {
+  await page.route('**/api/user/complete-setup', (route) =>
+    fulfillJson(route, 200, { message: 'Senha configurada com sucesso!' })
+  )
+}
+
+/** POST /api/user/complete-setup -> erro (ex.: 400 INVALID_PASSWORD_SETUP_TOKEN). */
+export async function mockCompleteSetupError(
+  page: Page,
+  status: number,
+  code: string,
+  message: string,
+  details?: ApiErrorDetail[]
+): Promise<void> {
+  await page.route('**/api/user/complete-setup', (route) =>
+    fulfillJson(route, status, { status: 'error', code, message, details })
+  )
+}
