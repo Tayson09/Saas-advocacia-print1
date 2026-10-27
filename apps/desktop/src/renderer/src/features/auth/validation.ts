@@ -96,6 +96,19 @@ export const registerUserSchema = z.object({
 
 export type RegisterUserForm = z.infer<typeof registerUserSchema>
 
+// definição de senha pelo usuário convidado (via link do e-mail)
+export const completeSetupSchema = z
+  .object({
+    password,
+    confirmPassword: z.string()
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'As senhas não coincidem',
+    path: ['confirmPassword']
+  })
+
+export type CompleteSetupForm = z.infer<typeof completeSetupSchema>
+
 // quantos requisitos a senha cumpre (0..5) — usado pelo medidor de força
 export function passwordScore(value: string): number {
   return passwordRequirements.filter((req) => req.test(value)).length

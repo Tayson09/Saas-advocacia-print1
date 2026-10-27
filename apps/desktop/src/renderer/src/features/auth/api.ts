@@ -70,6 +70,21 @@ export async function registerUser(input: RegisterUserInput): Promise<RegisterUs
   })
 }
 
+export interface CompleteSetupInput {
+  token: string
+  password: string
+}
+
+// POST /api/user/complete-setup -> usuário convidado define a própria senha
+export async function completePasswordSetup(
+  input: CompleteSetupInput
+): Promise<{ message: string }> {
+  return apiRequest('/user/complete-setup', {
+    method: 'POST',
+    body: JSON.stringify(input)
+  })
+}
+
 // POST /api/auth/login -> autentica e retorna tokens + dados do usuário
 export async function login(input: LoginInput): Promise<LoginResponse> {
   return apiRequest('/auth/login', {
