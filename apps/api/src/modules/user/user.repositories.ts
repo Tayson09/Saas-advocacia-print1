@@ -1,19 +1,23 @@
-// src/modules/users/user.repository.ts
 import { DbClient, defaultDb } from "../../lib/db.js";
 import type { UserRole } from "../../generated/prisma/enums.js";
-import { RegisterAdminInput } from "../setup/setup.schema.js";
 
-export type CreateUserData = Omit<RegisterAdminInput, "password"> & {
-  passwordHash: string;
-  role: UserRole;
+export type CreateUserData = {
+name: string;
+email: string;
+role: UserRole;
+passwordHash: string;
+passwordSetupCompletedAt?: Date | null;
+isActive?: boolean;
 };
 
 const publicUserSelect = {
-  id: true,
-  name: true,
-  email: true,
-  role: true,
-  createdAt: true,
+id: true,
+name: true,
+email: true,
+role: true,
+isActive: true,
+passwordSetupCompletedAt: true,
+createdAt: true,
 } as const;
 
 export const userRepository = {
@@ -29,4 +33,25 @@ export const userRepository = {
 
   findByEmailWithPassword: (email: string, db: DbClient = defaultDb) =>
     db.user.findUnique({ where: { email } }),
+
+  findByEmail(email: string, db: DbClient = defaultDb) {
+    return db.user.findUnique({
+      where: { email },
+      select: {
+      id: true,
+      email: true,
+      },
+    });
+  },
+
+  findForAuthorization: (id: string, db: DbClient = defaultDb) => {
+    return db.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        role: true,
+        isActive: true,
+      },
+    });
+  }
 };
