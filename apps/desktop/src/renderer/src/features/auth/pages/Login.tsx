@@ -8,14 +8,25 @@ import Input from '../../../components/ui/Input'
 import Button from '../../../components/ui/Button'
 import Checkbox from '../../../components/ui/Checkbox'
 import Alert from '../../../components/ui/Alert'
+import { useToast } from '../../../components/ui/Toast'
 import { ApiError } from '../../../lib/http'
 import { login } from '../api'
 import { useAuth } from '../context'
 import { saveSession, saveRememberedEmail, clearRememberedEmail, getRememberedEmail } from '../session'
 import { loginSchema } from '../validation'
+import type { SessionUser } from '../session'
 
 type LoginFieldErrors = Partial<Record<'email' | 'password', string>>
 type LoginField = 'email' | 'password'
+
+// após o login, o admin vai direto para o cadastro de usuário; os demais, ao painel
+function landingPath(role?: string): string {
+  return role === 'ADMIN' ? '/usuarios/novo' : '/dashboard'
+}
+
+function firstName(name: string): string {
+  return name.trim().split(/\s+/)[0] ?? name
+}
 
 // requisitos de senha, exibidos como instrução abaixo do campo
 const passwordHint =
@@ -33,7 +44,8 @@ function fieldError(
 
 function Login(): React.JSX.Element {
   const navigate = useNavigate()
-  const { setUser, isAuthenticated } = useAuth()
+  const toast = useToast()
+  const { user, setUser, isAuthenticated } = useAuth()
 
   const [email, setEmail] = useState(() => getRememberedEmail())
   const [password, setPassword] = useState('')
@@ -42,9 +54,16 @@ function Login(): React.JSX.Element {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
+  // já autenticado (ex.: sessão salva): manda para o destino do perfil
   useEffect(() => {
-    if (isAuthenticated) navigate('/dashboard', { replace: true })
-  }, [isAuthenticated, navigate])
+    if (isAuthenticated) navigate(landingPath(user?.role), { replace: true })
+  }, [isAuthenticated, user, navigate])
+
+  function completeLogin(loggedUser: SessionUser): void {
+    setUser(loggedUser)
+    toast.success(`Bem-vindo(a), ${firstName(loggedUser.name)}!`, { title: 'Acesso liberado' })
+    navigate(landingPath(loggedUser.role), { replace: true })
+  }
 
   async function handleSubmit(event: FormEvent): Promise<void> {
     event.preventDefault()
@@ -78,8 +97,7 @@ function Login(): React.JSX.Element {
         clearRememberedEmail()
       }
 
-      setUser(data.user)
-      navigate('/dashboard', { replace: true })
+      completeLogin(data.user)
     } catch (err) {
       if (err instanceof ApiError && err.code === 'USER_ACCOUNT_DISABLED') {
         setError('Sua conta está inativa. Entre em contato com o administrador do sistema.')

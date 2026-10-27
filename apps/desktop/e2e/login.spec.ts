@@ -40,16 +40,17 @@ test.describe('Login', () => {
     )
   })
 
-  test('faz login com sucesso e vai para o dashboard', async ({ page }) => {
+  test('faz login com sucesso e vai direto ao cadastro de usuário (admin)', async ({ page }) => {
     await mockLoginSuccess(page)
 
     await page.getByLabel('E-mail', { exact: true }).fill(DEFAULT_USER.email)
     await page.getByLabel('Senha', { exact: true }).fill('Senha@123')
     await page.getByRole('button', { name: 'Entrar' }).click()
 
-    await expect(page.getByRole('heading', { name: /Bem-vindo/ })).toBeVisible()
-    // o dashboard exibe o rótulo amigável do perfil (ADMIN -> Administrador)
-    await expect(page.getByText('Perfil: Administrador')).toBeVisible()
+    // boas-vindas vêm como notificação (pop-up), não como tela
+    await expect(page.getByRole('alert').filter({ hasText: 'Acesso liberado' })).toBeVisible()
+    // o admin cai direto na tela de cadastro de usuário
+    await expect(page.getByRole('heading', { name: 'Cadastrar usuário' })).toBeVisible()
   })
 
   test('lembra o e-mail quando a opção está marcada', async ({ page }) => {

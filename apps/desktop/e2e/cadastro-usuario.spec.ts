@@ -14,7 +14,7 @@ const NOVO_USUARIO = {
   role: 'LAWYER'
 }
 
-// faz login (como admin, por padrão) e abre a tela de cadastro de usuário
+// faz login como admin — que já cai direto na tela de cadastro de usuário
 async function irParaCadastroUsuario(page: Page, user: MockUser = DEFAULT_USER): Promise<void> {
   await mockLoginSuccess(page, user)
 
@@ -22,14 +22,15 @@ async function irParaCadastroUsuario(page: Page, user: MockUser = DEFAULT_USER):
   await page.getByLabel('Senha', { exact: true }).fill('Senha@123')
   await page.getByRole('button', { name: 'Entrar' }).click()
 
-  await page.getByRole('button', { name: 'Cadastrar usuário' }).click()
   await expect(page.getByRole('heading', { name: 'Cadastrar usuário' })).toBeVisible()
 }
 
 async function preencherFormulario(page: Page): Promise<void> {
   await page.getByLabel('Nome completo').fill(NOVO_USUARIO.name)
   await page.getByLabel('E-mail', { exact: true }).fill(NOVO_USUARIO.email)
-  await page.getByLabel('Perfil de acesso').selectOption(NOVO_USUARIO.role)
+  // caixa de seleção customizada: abre e escolhe a opção pelo rótulo
+  await page.getByRole('button', { name: 'Perfil de acesso' }).click()
+  await page.getByRole('option', { name: 'Advogado(a)' }).click()
 }
 
 test.describe('Cadastro de usuário', () => {

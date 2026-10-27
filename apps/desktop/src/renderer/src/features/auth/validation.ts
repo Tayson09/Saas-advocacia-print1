@@ -67,9 +67,9 @@ export type AssignableRole = (typeof assignableRoles)[number]
 
 // rótulos em pt-br dos perfis, usados nos selects e confirmações
 export const roleLabels: Record<string, string> = {
-  ADMIN: 'Administrador',
-  LAWYER: 'Advogado',
-  SECRETARY: 'Secretário'
+  ADMIN: 'Administrador(a)',
+  LAWYER: 'Advogado(a)',
+  SECRETARY: 'Secretário(a)'
 }
 
 export const roleOptions = assignableRoles.map((value) => ({

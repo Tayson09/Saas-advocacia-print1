@@ -1,39 +1,40 @@
+import './Dashboard.css'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, UserPlus } from 'lucide-react'
-import { useAuth } from '../../auth/context'
+import { UserPlus } from 'lucide-react'
+import AppLayout from '../../../components/layout/AppLayout'
 import Button from '../../../components/ui/Button'
-import { roleLabels } from '../../auth/validation'
+import { useAuth } from '../../auth/context'
 
 function Dashboard(): React.JSX.Element {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const navigate = useNavigate()
-
   const isAdmin = user?.role === 'ADMIN'
 
-  function handleLogout(): void {
-    logout()
-    navigate('/login', { replace: true })
-  }
-
   return (
-    <div style={{ padding: 40, display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <h1>Bem-vindo, {user?.name}</h1>
-      <p>Perfil: {user ? (roleLabels[user.role] ?? user.role) : ''}</p>
+    <AppLayout>
+      <div className="dashboard">
+        <header className="dashboard__head">
+          <h1 className="dashboard__title">Painel</h1>
+          <p className="dashboard__subtitle">
+            Seu espaço de trabalho no Verum. Novos módulos aparecerão aqui em breve.
+          </p>
+        </header>
 
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
         {isAdmin && (
-          <Button
-            leftIcon={<UserPlus size={16} />}
-            onClick={() => navigate('/usuarios/novo')}
-          >
-            Cadastrar usuário
-          </Button>
+          <div className="dashboard__card">
+            <div>
+              <strong className="dashboard__card-title">Gestão de usuários</strong>
+              <p className="dashboard__card-text">
+                Adicione advogados(as) e secretários(as) à equipe do escritório.
+              </p>
+            </div>
+            <Button leftIcon={<UserPlus size={16} />} onClick={() => navigate('/usuarios/novo')}>
+              Cadastrar usuário
+            </Button>
+          </div>
         )}
-        <Button variant="secondary" leftIcon={<LogOut size={16} />} onClick={handleLogout}>
-          Sair
-        </Button>
       </div>
-    </div>
+    </AppLayout>
   )
 }
 
