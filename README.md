@@ -1,15 +1,35 @@
-# SaaS Advocacia
+# Verum — SaaS de Gestão Jurídica
 
 Sistema desktop de gestão jurídica em desenvolvimento, destinado à organização de escritórios de advocacia, com funcionalidades previstas para usuários, clientes, processos, tarefas, compromissos e documentos.
 
 ## Stack tecnológica
 
-- **Desktop:** Electron, React e TypeScript.
-- **Backend:** Node.js, Express e TypeScript.
-- **Banco de dados:** PostgreSQL.
-- **ORM e migrations:** Prisma.
+### Desktop (`apps/desktop`)
+
+- **Plataforma:** Electron 39 (empacotamento e atualizações com electron-builder e electron-updater).
+- **Interface:** React 19 + React Router DOM 7, com CSS puro baseado em design tokens.
+- **Build:** Vite 7 via electron-vite.
+- **Ícones:** lucide-react.
+- **Linguagem:** TypeScript.
+
+### Backend (`apps/api`)
+
+- **Runtime e linguagem:** Node.js + TypeScript (ESM), com `tsx` em desenvolvimento.
+- **Framework web:** Express 5.
+- **ORM e migrations:** Prisma 7 com driver adapter `@prisma/adapter-pg` (driver `pg`).
+- **Autenticação e segurança:** Argon2 (hash de senha), JWT (access + refresh token) e rate limiting no login (express-rate-limit).
+- **E-mail transacional:** Resend.
 - **Validação:** Zod.
+
+### Banco de dados e infraestrutura
+
+- **Banco:** PostgreSQL 17.
 - **Infraestrutura local:** Docker e Docker Compose.
+
+### Testes e qualidade
+
+- **Testes end-to-end:** Playwright sobre o Electron.
+- **Padronização:** ESLint 9 e Prettier.
 
 ## Pré-requisitos
 
@@ -141,6 +161,14 @@ npx prisma migrate dev
 npx prisma generate
 ```
 
+### Limpar os dados para testar do zero
+
+Para apagar todos os usuários, tokens e registros de auditoria e devolver o sistema ao estado de instalação inicial (a tela volta a pedir o cadastro do primeiro administrador), execute na pasta `apps/api`:
+
+```powershell
+npm run db:reset
+```
+
 ## 5. Executar a API
 
 Ainda na pasta `apps/api`, execute:
@@ -176,6 +204,14 @@ npm run dev
 A janela do aplicativo desktop será aberta.
 
 Mantenha o processo da API em execução enquanto testa funcionalidades que dependam do backend.
+
+### Testes end-to-end (Playwright)
+
+Os testes e2e rodam sobre o Electron e não dependem da API nem do banco (as chamadas HTTP são mockadas). Na pasta `apps/desktop`:
+
+```powershell
+npm run test:e2e
+```
 
 ## 7. Estrutura do projeto
 
