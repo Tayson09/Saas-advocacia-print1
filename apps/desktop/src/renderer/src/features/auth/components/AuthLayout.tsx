@@ -1,6 +1,7 @@
 import './AuthLayout.css'
-import { ReactNode } from 'react'
-import { ShieldCheck, CircleHelp } from 'lucide-react'
+import { ReactNode, useState } from 'react'
+import { ShieldCheck, CircleHelp, Mail, UserCog } from 'lucide-react'
+import Modal from '../../../components/ui/Modal'
 
 interface AuthLayoutProps {
   children: ReactNode
@@ -56,6 +57,8 @@ function SealLogo(): React.JSX.Element {
 }
 
 function AuthLayout({ children }: AuthLayoutProps): React.JSX.Element {
+  const [helpOpen, setHelpOpen] = useState(false)
+
   return (
     <div className="auth-layout">
       <aside className="auth-panel" aria-hidden="true">
@@ -73,14 +76,14 @@ function AuthLayout({ children }: AuthLayoutProps): React.JSX.Element {
             <ShieldCheck size={15} />
             Ambiente seguro
           </span>
-          <a
+          <button
+            type="button"
             className="auth-header__item auth-header__help"
-            href="#"
-            onClick={(e) => e.preventDefault()}
+            onClick={() => setHelpOpen(true)}
           >
             <CircleHelp size={15} />
             Precisa de ajuda?
-          </a>
+          </button>
         </header>
 
         <main className="auth-main">{children}</main>
@@ -97,6 +100,30 @@ function AuthLayout({ children }: AuthLayoutProps): React.JSX.Element {
           </span>
         </footer>
       </div>
+
+      <Modal open={helpOpen} onClose={() => setHelpOpen(false)} title="Precisa de ajuda?">
+        <div className="auth-help">
+          <p className="auth-help__intro">
+            O acesso ao Verum é gerenciado pelo administrador do seu escritório. Use o e-mail e a
+            senha que ele cadastrou para você.
+          </p>
+
+          <div className="auth-help__item">
+            <UserCog size={16} />
+            <span>
+              <strong>Sem acesso ou esqueceu a senha?</strong> Fale com o administrador — ele pode
+              criar seu acesso ou reenviar o convite para você definir uma nova senha.
+            </span>
+          </div>
+
+          <div className="auth-help__item">
+            <Mail size={16} />
+            <span>
+              <strong>Suporte:</strong> suporte@verum.com.br
+            </span>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }
