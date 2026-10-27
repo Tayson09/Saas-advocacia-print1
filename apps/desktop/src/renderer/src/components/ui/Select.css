@@ -1,0 +1,59 @@
+.ui-select {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  height: 48px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition:
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.ui-select:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-info-bg);
+}
+
+.ui-select--error {
+  border-color: var(--color-danger);
+}
+
+.ui-select--error:focus-within {
+  box-shadow: 0 0 0 3px var(--color-danger-bg);
+}
+
+.ui-select__icon {
+  display: inline-flex;
+  color: var(--color-muted);
+}
+
+.ui-select__control {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--color-label);
+  font-size: 14px;
+  /* remove a aparência nativa para usar o chevron customizado */
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+/* quando o placeholder está selecionado, o texto fica com cor de muted */
+.ui-select--placeholder .ui-select__control {
+  color: var(--color-muted);
+}
+
+.ui-select__chevron {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--color-muted);
+  pointer-events: none;
+}

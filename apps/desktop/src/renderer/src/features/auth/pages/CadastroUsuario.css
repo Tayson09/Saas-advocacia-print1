@@ -1,0 +1,37 @@
+.cadastro-usuario {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: min(460px, calc(100% - 32px));
+}
+
+.cadastro-usuario__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-muted);
+  transition: color 150ms;
+}
+
+.cadastro-usuario__back:hover {
+  color: var(--color-primary);
+}
+
+.cadastro-usuario__form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cadastro-usuario__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 4px;
+}
