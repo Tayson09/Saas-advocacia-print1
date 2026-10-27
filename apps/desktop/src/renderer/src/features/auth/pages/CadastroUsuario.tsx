@@ -1,9 +1,7 @@
 import './CadastroUsuario.css'
 import { FormEvent, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, UserPlus } from 'lucide-react'
-import AuthLayout from '../components/AuthLayout'
-import PageIntro from '../components/PageIntro'
+import { UserPlus } from 'lucide-react'
+import AppLayout from '../../../components/layout/AppLayout'
 import Input from '../../../components/ui/Input'
 import Select from '../../../components/ui/Select'
 import Button from '../../../components/ui/Button'
@@ -32,7 +30,6 @@ function fieldError(field: Field, values: FormValues): string | undefined {
 }
 
 function CadastroUsuario(): React.JSX.Element {
-  const navigate = useNavigate()
   const toast = useToast()
 
   const [name, setName] = useState('')
@@ -107,12 +104,11 @@ function CadastroUsuario(): React.JSX.Element {
         return
       }
 
-      // admin perdeu permissão (ou não é admin): manda de volta ao painel
+      // admin perdeu permissão (ou não é admin): avisa; a rota já protege a tela
       if (err.code === 'FORBIDDEN' || err.code === 'UNAUTHENTICATED') {
         toast.error('Você não tem permissão para cadastrar usuários.', {
           title: 'Acesso negado'
         })
-        navigate('/dashboard', { replace: true })
         return
       }
 
@@ -155,97 +151,99 @@ function CadastroUsuario(): React.JSX.Element {
   const emailValid = emailPattern.test(email.trim())
 
   return (
-    <AuthLayout>
+    <AppLayout>
       <div className="cadastro-usuario">
-        <button
-          type="button"
-          className="cadastro-usuario__back"
-          onClick={() => navigate('/dashboard')}
-        >
-          <ArrowLeft size={16} />
-          Voltar ao painel
-        </button>
+        <header className="cadastro-usuario__head">
+          <span className="cadastro-usuario__eyebrow">GESTÃO DE USUÁRIOS</span>
+          <h1 className="cadastro-usuario__title">Cadastrar usuário</h1>
+          <p className="cadastro-usuario__subtitle">
+            Adicione um(a) advogado(a) ou secretário(a) à equipe. A pessoa receberá um e-mail para
+            definir a própria senha.
+          </p>
+        </header>
 
-        <PageIntro
-          label="GESTÃO DE USUÁRIOS"
-          title="Cadastrar usuário"
-          description="Adicione um advogado ou secretário à equipe. Ele receberá um e-mail para definir a própria senha."
-        />
+        <div className="cadastro-usuario__grid">
+          <form className="cadastro-usuario__card" onSubmit={handleSubmit} noValidate>
+            <div className="cadastro-usuario__fields">
+              <Input
+                label="Nome completo"
+                value={name}
+                onChange={(e) => {
+                  const next = e.target.value
+                  setName(next)
+                  revalidate('name', { ...values, name: next })
+                }}
+                onBlur={() => handleBlur('name')}
+                valid={nameValid}
+                error={errors.name}
+                placeholder="Nome completo do usuário"
+                autoComplete="off"
+              />
 
-        <Alert variant="info" title="Como funciona o acesso">
-          Você não define a senha do usuário. Após o cadastro, ele recebe um link por e-mail (válido
-          por 1 hora) para criar a senha e acessar o sistema.
-        </Alert>
+              <Input
+                label="E-mail"
+                type="email"
+                value={email}
+                onChange={(e) => {
+                  const next = e.target.value
+                  setEmail(next)
+                  revalidate('email', { ...values, email: next })
+                }}
+                onBlur={() => handleBlur('email')}
+                valid={emailValid}
+                error={errors.email}
+                placeholder="seuemail@gmail.com"
+                autoComplete="off"
+              />
 
-        <form className="cadastro-usuario__form" onSubmit={handleSubmit} noValidate>
-          <Input
-            label="Nome completo"
-            value={name}
-            onChange={(e) => {
-              const next = e.target.value
-              setName(next)
-              revalidate('name', { ...values, name: next })
-            }}
-            onBlur={() => handleBlur('name')}
-            valid={nameValid}
-            error={errors.name}
-            placeholder="Nome completo do usuário"
-            autoComplete="off"
-          />
+              <Select
+                label="Perfil de acesso"
+                options={roleOptions}
+                placeholder="Selecione o perfil"
+                value={role}
+                onChange={(next) => {
+                  setRole(next)
+                  revalidate('role', { ...values, role: next })
+                }}
+                onBlur={() => handleBlur('role')}
+                error={errors.role}
+                hint="Advogado(a) acessa processos e clientes; Secretário(a) auxilia na organização."
+              />
+            </div>
 
-          <Input
-            label="E-mail"
-            type="email"
-            value={email}
-            onChange={(e) => {
-              const next = e.target.value
-              setEmail(next)
-              revalidate('email', { ...values, email: next })
-            }}
-            onBlur={() => handleBlur('email')}
-            valid={emailValid}
-            error={errors.email}
-            placeholder="usuario@escritorio.com"
-            autoComplete="off"
-          />
+            {submitError && <Alert variant="danger">{submitError}</Alert>}
 
-          <Select
-            label="Perfil de acesso"
-            options={roleOptions}
-            placeholder="Selecione o perfil"
-            value={role}
-            onChange={(e) => {
-              const next = e.target.value
-              setRole(next)
-              revalidate('role', { ...values, role: next })
-            }}
-            onBlur={() => handleBlur('role')}
-            error={errors.role}
-            hint="Advogado acessa processos e clientes; Secretário auxilia na organização."
-          />
+            <div className="cadastro-usuario__actions">
+              <Button type="button" variant="secondary" onClick={resetForm} disabled={loading}>
+                Limpar
+              </Button>
+              <Button type="submit" disabled={loading} rightIcon={<UserPlus size={16} />}>
+                {loading ? 'Cadastrando...' : 'Cadastrar usuário'}
+              </Button>
+            </div>
+          </form>
 
-          {submitError && <Alert variant="danger">{submitError}</Alert>}
+          <aside className="cadastro-usuario__aside">
+            <Alert variant="info" title="Como funciona o acesso">
+              Você não define a senha do usuário. Após o cadastro, ele recebe um link por e-mail
+              (válido por 1 hora) para criar a senha e acessar o sistema.
+            </Alert>
 
-          <div className="cadastro-usuario__actions">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => navigate('/dashboard')}
-              disabled={loading}
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              disabled={loading}
-              rightIcon={<UserPlus size={16} />}
-            >
-              {loading ? 'Cadastrando...' : 'Cadastrar usuário'}
-            </Button>
-          </div>
-        </form>
+            <div className="cadastro-usuario__tips">
+              <h2 className="cadastro-usuario__tips-title">Perfis de acesso</h2>
+              <ul className="cadastro-usuario__tips-list">
+                <li>
+                  <strong>Advogado(a)</strong> — acompanha processos e clientes do escritório.
+                </li>
+                <li>
+                  <strong>Secretário(a)</strong> — auxilia na organização e no apoio administrativo.
+                </li>
+              </ul>
+            </div>
+          </aside>
+        </div>
       </div>
-    </AuthLayout>
+    </AppLayout>
   )
 }
 
