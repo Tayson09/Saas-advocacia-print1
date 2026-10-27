@@ -89,3 +89,34 @@ export async function mockRegisterAdminError(
     fulfillJson(route, status, { status: 'error', code, message, details })
   )
 }
+
+/** POST /api/user/register -> 201 com o usuário criado + indicação de envio do e-mail. */
+export async function mockRegisterUserSuccess(
+  page: Page,
+  options: { user?: Partial<MockUser>; emailSent?: boolean } = {}
+): Promise<void> {
+  await page.route('**/api/user/register', (route) =>
+    fulfillJson(route, 201, {
+      user: {
+        id: options.user?.id ?? 'user-e2e-novo',
+        name: options.user?.name ?? 'Carlos Advogado',
+        email: options.user?.email ?? 'carlos@escritorio.com',
+        role: options.user?.role ?? 'LAWYER'
+      },
+      emailSent: options.emailSent ?? true
+    })
+  )
+}
+
+/** POST /api/user/register -> erro (ex.: 409 EMAIL_ALREADY_EXISTS, 403 FORBIDDEN). */
+export async function mockRegisterUserError(
+  page: Page,
+  status: number,
+  code: string,
+  message: string,
+  details?: ApiErrorDetail[]
+): Promise<void> {
+  await page.route('**/api/user/register', (route) =>
+    fulfillJson(route, status, { status: 'error', code, message, details })
+  )
+}
