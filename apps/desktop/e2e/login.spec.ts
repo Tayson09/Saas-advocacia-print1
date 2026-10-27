@@ -48,7 +48,8 @@ test.describe('Login', () => {
     await page.getByRole('button', { name: 'Entrar' }).click()
 
     await expect(page.getByRole('heading', { name: /Bem-vindo/ })).toBeVisible()
-    await expect(page.getByText(`Perfil: ${DEFAULT_USER.role}`)).toBeVisible()
+    // o dashboard exibe o rótulo amigável do perfil (ADMIN -> Administrador)
+    await expect(page.getByText('Perfil: Administrador')).toBeVisible()
   })
 
   test('lembra o e-mail quando a opção está marcada', async ({ page }) => {

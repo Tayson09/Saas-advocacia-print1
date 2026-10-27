@@ -69,7 +69,7 @@ test.describe('Cadastro do administrador', () => {
 
     await page.getByRole('button', { name: 'Criar conta do administrador' }).click()
 
-    await expect(page.getByText('Nome muito curto')).toBeVisible()
+    await expect(page.getByText('Nome é obrigatório')).toBeVisible()
     await expect(page.getByText('É necessário aceitar os termos')).toBeVisible()
   })
 })
