@@ -53,5 +53,22 @@ export const userRepository = {
         isActive: true,
       },
     });
+  },
+
+  findPasswordSetupByHash(tokenHash: string, db: DbClient = defaultDb) {
+    return db.passwordSetupToken.findUnique({ where: { tokenHash }, include: { user: true } });
+  },
+
+  consumePasswordSetupToken(id: string, db: DbClient = defaultDb) {
+    return db.passwordSetupToken.updateMany({
+      where: {
+        id,
+        usedAt: null,
+        expiresAt: {gt: new Date()},
+      },
+      data: {
+        usedAt: new Date(),
+      },
+    });
   }
 };

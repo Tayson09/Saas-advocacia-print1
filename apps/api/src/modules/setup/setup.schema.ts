@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const password = z
+export const password = z
   .string({ error: "Senha é obrigatória" })
   .min(1, "Senha é obrigatória")
   .pipe(
