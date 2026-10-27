@@ -160,9 +160,6 @@ function Login(): React.JSX.Element {
             >
               Lembrar meu e-mail
             </Checkbox>
-            <a className="login__recover" href="#" onClick={(e) => e.preventDefault()}>
-              Esqueci minha senha
-            </a>
           </div>
 
           {error && <Alert variant="danger">{error}</Alert>}

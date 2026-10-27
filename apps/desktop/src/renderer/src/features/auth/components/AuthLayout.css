@@ -83,6 +83,40 @@
 .auth-header__help {
   font-weight: 500;
   text-decoration: none;
+  /* reset de botão: herda a aparência do item do header */
+  font-family: inherit;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.auth-header__help:hover {
+  color: var(--color-text);
+}
+
+/* conteúdo do modal "Precisa de ajuda?" */
+.auth-help {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.auth-help__intro {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.auth-help__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.auth-help__item svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-primary);
 }
 
 /* conteúdo central — scrollável internamente sem barra visível */
