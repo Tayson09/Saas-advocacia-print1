@@ -19,7 +19,9 @@ model User {
   email                    String               @unique
   passwordHash             String               @map("password_hash")
   role                     UserRole
-  isActive                 Boolean              @default(true) @map("is_active")
+  isActive                 Boolean              @default(true) @map("is_active") 
+  lawyerLinks LawyerSecretaryLink[] @relation("LawyerLinks")
+  secretaryLinks LawyerSecretaryLink[] @relation("SecretaryLinks")
   passwordSetupCompletedAt DateTime?            @map("password_setup_completed_at")
   passwordSetupTokens      PasswordSetupToken[]
   refreshTokens            RefreshToken[]
@@ -79,4 +81,22 @@ model PasswordSetupToken {
 
   @@index([userId])
   @@map("password_setup_tokens")
+}
+
+model LawyerSecretaryLink {
+  id String @id @default(uuid()) @db.Uuid
+  lawyerId String @map("lawyer_id") @db.Uuid
+  secretaryId String @map("secretary_id") @db.Uuid
+  startDate DateTime @map("start_date") @db.Date
+  endDate DateTime? @map("end_date") @db.Date
+  createdAt                DateTime             @default(now()) @map("created_at")
+  updatedAt                DateTime             @updatedAt @map("updated_at")
+  lawyer User @relation("LawyerLinks", fields: [lawyerId], references: [id], onDelete: Restrict)
+  secretary User @relation("SecretaryLinks", fields: [secretaryId], references: [id], onDelete: Restrict)
+  
+  @@unique([lawyerId, secretaryId, startDate])
+  @@index([lawyerId, endDate])
+  @@index([secretaryId, endDate])
+
+  @@map("lawyer_secretary_links")  
 }
