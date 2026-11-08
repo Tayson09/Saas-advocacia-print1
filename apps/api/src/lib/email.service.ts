@@ -9,7 +9,6 @@ type SendPasswordSetupEmailInput = {
 
 export async function sendPasswordSetupEmail({ to, name, token }: SendPasswordSetupEmailInput) {
   const from = env.EMAIL_FROM
-  // o front usa HashRouter, então a rota precisa ficar depois do '#'
   const base = env.FRONTEND_URL.replace(/\/+$/, "");
   const setupUrl = `${base}/#/complete-setup?token=${encodeURIComponent(token)}`;
 

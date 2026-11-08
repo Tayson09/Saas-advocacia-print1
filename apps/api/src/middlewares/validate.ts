@@ -33,7 +33,6 @@ export function validate(schemas: RequestSchemas) {
       }
     
       if (location === "query") {
-        // no Express 5, req.query é somente leitura (getter)
         Object.defineProperty(req, "query", {
           value: result.data,
           writable: true,
