@@ -19,4 +19,4 @@ export const linkSchema = {
     }),
 };
 
-export type LinkInput = z.infer<typeof linkSchema>;
+export type LinkInput = z.infer<typeof linkSchema.body>;
