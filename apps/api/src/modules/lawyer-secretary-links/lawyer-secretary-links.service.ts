@@ -80,4 +80,8 @@ export const linkService = {
 
     return linkRepository.create(input);
   },
+
+  list() {
+    return linkRepository.list();
+  }
 };
