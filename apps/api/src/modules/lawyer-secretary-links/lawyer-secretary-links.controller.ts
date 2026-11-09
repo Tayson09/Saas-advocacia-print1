@@ -11,4 +11,10 @@ export const linkController = {
 
     return res.status(StatusCodes.CREATED).json(result);
   },
+
+  async list(req: Request, res: Response) {
+    const links = await linkService.list();
+
+    return res.status(StatusCodes.OK).json(links);
+  }
 };
