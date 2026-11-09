@@ -62,7 +62,7 @@ export const linkService = {
       );
     }
 
-    if (lawyer.role !== UserRole.ADMIN && lawyer.role !== UserRole.LAWYER) {
+    if (lawyer.role !== UserRole.ADMIN) {
       throw new AppError(
         "Usuário não possui o papel adequado",
         StatusCodes.UNPROCESSABLE_ENTITY,

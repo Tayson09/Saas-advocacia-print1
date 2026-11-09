@@ -3,8 +3,18 @@ import { z } from "zod";
 export const linkSchema = {
   body: z
     .object({
-      lawyerId: z.uuid(),
-      secretaryId: z.uuid(),
+      lawyerId: z.uuid({
+        error: (issue) =>
+          issue.input === undefined
+            ? "O ID do advogado é obrigatório."
+            : "O ID do advogado deve ser um UUID válido.",
+      }),
+      secretaryId: z.uuid({
+        error: (issue) =>
+          issue.input === undefined
+            ? "O ID da secretária é obrigatório."
+            : "O ID da secretária deve ser um UUID válido.",
+      }),
       startDate: z.iso
         .date("A data deve estar no formato AAAA-MM-DD")
         .transform((val) => new Date(val)),
