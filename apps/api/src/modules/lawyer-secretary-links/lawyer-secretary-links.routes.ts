@@ -7,6 +7,65 @@ import { linkController } from "./lawyer-secretary-links.controller.js";
 
 const router = Router();
 
+/**
+ * @openapi
+ * /links:
+ *   post:
+ *     summary: Criar vínculo entre advogado e secretária
+ *     description: Cria um vínculo entre um advogado e uma secretária.
+ *     tags:
+ *       - Vínculos advogado-secretária
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - lawyerId
+ *               - secretaryId
+ *               - startDate
+ *             properties:
+ *               lawyerId:
+ *                 type: string
+ *                 format: uuid
+ *                 description: ID do advogado.
+ *               secretaryId:
+ *                 type: string
+ *                 format: uuid
+ *                 description: ID da secretária.
+ *               startDate:
+ *                 type: string
+ *                 format: date
+ *                 example: "2026-11-09"
+ *               endDate:
+ *                 type: string
+ *                 format: date
+ *                 nullable: true
+ *                 example: null
+ *           example:
+ *             lawyerId: "b838ea95-e403-44a6-848f-c17d452928af"
+ *             secretaryId: "39fe49ff-0c95-422c-a952-371a5c43111c"
+ *             startDate: "2026-11-09"
+ *             endDate: null
+ *     responses:
+ *       201:
+ *         description: Vínculo criado com sucesso.
+ *       400:
+ *         description: Dados da requisição inválidos.
+ *       401:
+ *         description: Usuário não autenticado.
+ *       403:
+ *         description: Usuário sem permissão administrativa.
+ *       404:
+ *         description: Advogado ou secretária não encontrados.
+ *       409:
+ *         description: Já existe um vínculo com esses dados.
+ *       422:
+ *         description: Os dados não atendem às regras de negócio.
+ */
 router.post(
   "/",
   authenticate,
@@ -15,6 +74,23 @@ router.post(
   linkController.create,
 );
 
+/**
+ * @openapi
+ * /links/all:
+ *   get:
+ *     summary: Lista os vínculos entre advogados e secretárias
+ *     tags:
+ *       - Vínculos advogado-secretária
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de vínculos retornada com sucesso.
+ *       401:
+ *         description: Usuário não autenticado.
+ *       403:
+ *         description: Usuário sem permissão.
+ */
 router.get("/all", authenticate, linkController.list);
 
 export default router;
