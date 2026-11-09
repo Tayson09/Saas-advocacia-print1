@@ -4,7 +4,7 @@ import express from "express";
 import cors from "cors";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import routes from "./routes.js";
-import swaggerUi from "swagger-ui-express";
+import { apiReference } from "@scalar/express-api-reference";
 import { swaggerSpec } from "./config/swagger.js";
 
 const app = express();
@@ -29,7 +29,12 @@ app.use(
 app.use(express.json());
 
 app.use("/api", routes);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use(
+  "/api-docs",
+  apiReference({
+    content: swaggerSpec,
+  }),
+);
 
 app.use(errorHandler);
 export default app;

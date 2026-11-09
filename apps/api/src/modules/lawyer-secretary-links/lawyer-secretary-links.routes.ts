@@ -12,7 +12,7 @@ const router = Router();
  * /links:
  *   post:
  *     summary: Criar vínculo entre advogado e secretária
- *     description: Cria um vínculo entre um advogado e uma secretária.
+ *     description: Cria um vínculo entre um advogado e uma secretária. Acesso restrito a administradores.
  *     tags:
  *       - Vínculos advogado-secretária
  *     security:
@@ -58,13 +58,13 @@ const router = Router();
  *       401:
  *         description: Usuário não autenticado.
  *       403:
- *         description: Usuário sem permissão administrativa.
+ *         description: Usuário sem permissão.
  *       404:
  *         description: Advogado ou secretária não encontrados.
  *       409:
  *         description: Já existe um vínculo com esses dados.
  *       422:
- *         description: Os dados não atendem às regras de negócio.
+ *         description: Dados válidos, mas que violam regras de negócio.
  */
 router.post(
   "/",
