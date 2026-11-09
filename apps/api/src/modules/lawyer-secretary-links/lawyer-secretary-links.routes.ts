@@ -15,4 +15,6 @@ router.post(
   linkController.create,
 );
 
+router.get("/all", authenticate, linkController.list);
+
 export default router;
