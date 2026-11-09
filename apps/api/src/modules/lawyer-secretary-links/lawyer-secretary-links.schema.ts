@@ -1,0 +1,22 @@
+import { z } from "zod";
+
+export const linkSchema = {
+  body: z
+    .object({
+      lawyerId: z.uuid(),
+      secretaryId: z.uuid(),
+      startDate: z.iso
+        .date("A data deve estar no formato AAAA-MM-DD")
+        .transform((val) => new Date(val)),
+      endDate: z.iso
+        .date()
+        .nullish()
+        .transform((val) => (val ? new Date(val) : null)),
+    })
+    .refine((data) => !data.endDate || data.endDate >= data.startDate, {
+      message: "A data final não pode ser anterior à data de início.",
+      path: ["endDate"],
+    }),
+};
+
+export type LinkInput = z.infer<typeof linkSchema>;
