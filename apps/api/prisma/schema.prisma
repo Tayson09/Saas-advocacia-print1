@@ -100,7 +100,6 @@ model LawyerSecretaryLink {
   secretary  User  @relation("SecretaryLinks", fields: [secretaryId], references: [id], onDelete: Restrict)
   canceledBy User? @relation("CancellationLinks", fields: [canceledById], references: [id], onDelete: Restrict)
 
-  @@unique([lawyerId, secretaryId, startDate])
   @@index([lawyerId, endDate])
   @@index([secretaryId, endDate])
   @@map("lawyer_secretary_links")
