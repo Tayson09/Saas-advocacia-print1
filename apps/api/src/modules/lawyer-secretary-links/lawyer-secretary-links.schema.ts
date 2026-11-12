@@ -29,4 +29,11 @@ export const linkSchema = {
     }),
 };
 
+export const endLinkSchema = {
+  params: z.object({
+    id: z.uuid("O ID informado não é um UUID válido."),
+  }),
+};
+
 export type LinkInput = z.infer<typeof linkSchema.body>;
+export type EndLinkInput = z.infer<typeof endLinkSchema.params>;
