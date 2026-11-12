@@ -39,16 +39,11 @@ export const linkSchema = {
     params: idParamsSchema,
     body: z.object({
       endDate: z.preprocess(
-        (val) => {
-          if (val === null || (typeof val === "string" && val.trim() === "")) {
-            return undefined;
-          }
-
-          return typeof val === "string" ? val.trim() : val;
-        },
+        (val) => (typeof val === "string" ? val.trim() : val),
         z.iso
           .date("A data final é obrigatória e deve estar no formato AAAA-MM-DD")
-          .transform((val) => new Date(val)),
+          .transform((val) => new Date(val))
+          .nullable(),
       ),
     }),
   },

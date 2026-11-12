@@ -2,13 +2,15 @@ import { DbClient, defaultDb } from "../../lib/db.js";
 import type {
   LinkInput,
   EndLinkInput,
+  UpdateBodyLinkInput,
+  UpdateParamsLinkInput,
 } from "./lawyer-secretary-links.schema.js";
 
 export const linkRepository = {
   findById(id: string, db: DbClient = defaultDb) {
     return db.lawyerSecretaryLink.findUnique({
       where: {
-        id
+        id,
       },
     });
   },
@@ -33,7 +35,7 @@ export const linkRepository = {
   },
 
   async endLink(data: EndLinkInput, date: Date, db: DbClient = defaultDb) {
-    const { count }= await db.lawyerSecretaryLink.updateMany({
+    const { count } = await db.lawyerSecretaryLink.updateMany({
       where: {
         id: data.id,
         endDate: null,
@@ -44,6 +46,23 @@ export const linkRepository = {
       },
     });
 
+    return count;
+  },
+
+  async updateLink(
+    { id }: UpdateParamsLinkInput,
+    data: UpdateBodyLinkInput,
+    today: Date,
+    db: DbClient = defaultDb,
+  ) {
+    const { count } = await db.lawyerSecretaryLink.updateMany({
+      where: {
+        id,
+        canceledAt: null,
+        OR: [{ endDate: null }, { endDate: { gte: today } }],
+      },
+      data,
+    });
     return count;
   },
 };
