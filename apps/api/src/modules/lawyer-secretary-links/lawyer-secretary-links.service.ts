@@ -1,6 +1,9 @@
 import { linkRepository } from "./lawyer-secretary-links.repository.js";
 import { userRepository } from "../user/user.repositories.js";
-import type { LinkInput } from "./lawyer-secretary-links.schema.js";
+import type {
+  LinkInput,
+  EndLinkInput,
+} from "./lawyer-secretary-links.schema.js";
 import { AppError } from "../../helpers/errors/app-error.js";
 import { StatusCodes } from "http-status-codes";
 import { UserRole } from "../../generated/prisma/enums.js";
@@ -83,5 +86,37 @@ export const linkService = {
 
   list() {
     return linkRepository.list();
-  }
+  },
+
+  async endLink(input: EndLinkInput) {
+    const link = await linkRepository.findById(input.id);
+
+    if (!link) {
+      throw new AppError(
+        "Vínculo não encontrado.",
+        StatusCodes.NOT_FOUND,
+        "NOT_FOUND_LINK",
+      );
+    }
+
+    if (link.endDate !== null && link.endDate < new Date()) {
+      throw new AppError(
+        "O vínculo não pode ser encerrado, porque ele já terminou.",
+        StatusCodes.CONFLICT,
+        "LINK_ALREADY_ENDED",
+      );
+    }
+
+    const result = await linkRepository.endLink(input, new Date());
+
+    if (result === 0) {
+      throw new AppError(
+        "O vínculo não pode ser encerrado, porque ele já terminou.",
+        StatusCodes.CONFLICT,
+        "LINK_ALREADY_ENDED",
+      );
+    }
+
+    return;
+  },
 };

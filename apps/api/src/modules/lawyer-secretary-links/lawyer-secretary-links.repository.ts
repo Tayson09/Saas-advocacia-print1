@@ -32,8 +32,8 @@ export const linkRepository = {
     return links;
   },
 
-  endLink(data: EndLinkInput, date: Date, db: DbClient = defaultDb) {
-    return db.lawyerSecretaryLink.updateMany({
+  async endLink(data: EndLinkInput, date: Date, db: DbClient = defaultDb) {
+    const { count }= await db.lawyerSecretaryLink.updateMany({
       where: {
         id: data.id,
         endDate: null,
@@ -42,5 +42,7 @@ export const linkRepository = {
         endDate: date,
       },
     });
+
+    return count;
   },
 };
