@@ -5,6 +5,8 @@ import type {
   EndLinkInput,
   UpdateBodyLinkInput,
   UpdateParamsLinkInput,
+  CancelParamsLinkInput,
+  CancelBodyLinkInput
 } from "./lawyer-secretary-links.schema.js";
 import { AppError } from "../../helpers/errors/app-error.js";
 import { StatusCodes } from "http-status-codes";
@@ -73,6 +75,13 @@ function ensureLinkHasStarted(link: LawyerSecretaryLink, today: Date): void {
       "LINK_NOT_STARTED",
     );
   }
+}
+
+function normalizeDate(): Date {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  
+  return date;
 }
 
 export const linkService = {
@@ -158,7 +167,7 @@ export const linkService = {
     today.setHours(0, 0, 0, 0);
 
     ensureLinkHasStarted(link, today);
-    
+
     ensureLinkIsntFinished(link, today);
 
     const result = await linkRepository.endLink(input, new Date());
@@ -176,8 +185,7 @@ export const linkService = {
 
     ensureLinkNotCancelled(link);
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = normalizeDate();
 
     ensureLinkIsntFinished(link, today);
 
@@ -189,4 +197,20 @@ export const linkService = {
 
     return;
   },
+
+  async cancelLink(params: CancelParamsLinkInput, input : CancelBodyLinkInput, canceledByID: string) {
+    const link = await findLinkOrThrow(params.id);
+
+    ensureLinkNotCancelled(link);
+
+    const today = normalizeDate();
+
+    ensureLinkIsntFinished(link, today); 
+    
+    const result = await linkRepository.cancelLink(params, today, input, canceledByID);
+
+    ensureLinkWasUpdated(result);
+    
+    return;
+  }
 };
