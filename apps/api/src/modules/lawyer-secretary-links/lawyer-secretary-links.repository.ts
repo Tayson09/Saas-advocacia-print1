@@ -4,6 +4,8 @@ import type {
   EndLinkInput,
   UpdateBodyLinkInput,
   UpdateParamsLinkInput,
+  CancelParamsLinkInput,
+  CancelBodyLinkInput,
 } from "./lawyer-secretary-links.schema.js";
 
 export const linkRepository = {
@@ -63,6 +65,29 @@ export const linkRepository = {
       },
       data,
     });
+    return count;
+  },
+
+  async cancelLink(
+    params: CancelParamsLinkInput,
+    today: Date,
+    input: CancelBodyLinkInput,
+    canceledById: string,
+    db: DbClient = defaultDb,
+  ) {
+    const { count } = await db.lawyerSecretaryLink.updateMany({
+      where: {
+        id: params.id,
+        canceledAt: null,
+        OR: [{ endDate: null }, { endDate: { gte: today } }],
+      },
+      data: {
+        canceledAt: today,
+        cancellationReason: input.reason,
+        canceledById,
+      },
+    });
+
     return count;
   },
 };
