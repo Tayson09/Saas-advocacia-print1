@@ -1,21 +1,24 @@
 import { z } from "zod";
 
+const idParamsSchema = z.object({
+  id: z.uuid("O ID informado não é um UUID válido."),
+});
+
+const requiredUuid = (message: string): z.ZodUUID => {
+  return z.uuid({
+    error: (issue) =>
+      issue.input === undefined
+        ? `${message} é obrigatório.`
+        : `${message} deve ser um UUID válido.`,
+  });
+};
+
 export const linkSchema = {
   create: {
     body: z
       .object({
-        lawyerId: z.uuid({
-          error: (issue) =>
-            issue.input === undefined
-              ? "O ID do advogado é obrigatório."
-              : "O ID do advogado deve ser um UUID válido.",
-        }),
-        secretaryId: z.uuid({
-          error: (issue) =>
-            issue.input === undefined
-              ? "O ID da secretária é obrigatório."
-              : "O ID da secretária deve ser um UUID válido.",
-        }),
+        lawyerId: requiredUuid("O ID do advogado"),
+        secretaryId: requiredUuid("O ID da secretária"),
         startDate: z.iso
           .date("A data deve estar no formato AAAA-MM-DD")
           .transform((val) => new Date(val)),
@@ -30,26 +33,22 @@ export const linkSchema = {
       }),
   },
   end: {
-    params: z.object({
-      id: z.uuid("O ID informado não é um UUID válido."),
-    }),
+    params: idParamsSchema,
   },
   update: {
-    params: z.object({
-      id: z.uuid("O ID informado não é um UUID válido."),
-    }),
+    params: idParamsSchema,
     body: z.object({
       endDate: z.preprocess(
         (val) => {
           if (val === null || (typeof val === "string" && val.trim() === "")) {
             return undefined;
           }
-          
-          if (typeof val === "string") {
-            return val.trim();
-          }
+
+          return typeof val === "string" ? val.trim() : val;
         },
-        z.iso.date("A data final é obrigatória e deve estar no formato AAAA-MM-DD").transform((val) => new Date(val)),
+        z.iso
+          .date("A data final é obrigatória e deve estar no formato AAAA-MM-DD")
+          .transform((val) => new Date(val)),
       ),
     }),
   },
@@ -57,3 +56,5 @@ export const linkSchema = {
 
 export type LinkInput = z.infer<typeof linkSchema.create.body>;
 export type EndLinkInput = z.infer<typeof linkSchema.end.params>;
+export type UpdateBodyLinkInput = z.infer<typeof linkSchema.update.body>;
+export type UpdateParamsLinkInput = z.infer<typeof linkSchema.update.params>;
