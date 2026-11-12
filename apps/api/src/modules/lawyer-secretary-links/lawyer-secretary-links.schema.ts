@@ -34,9 +34,26 @@ export const linkSchema = {
       id: z.uuid("O ID informado não é um UUID válido."),
     }),
   },
+  update: {
+    params: z.object({
+      id: z.uuid("O ID informado não é um UUID válido."),
+    }),
+    body: z.object({
+      endDate: z.preprocess(
+        (val) => {
+          if (val === null || (typeof val === "string" && val.trim() === "")) {
+            return undefined;
+          }
+          
+          if (typeof val === "string") {
+            return val.trim();
+          }
+        },
+        z.iso.date("A data final é obrigatória e deve estar no formato AAAA-MM-DD").transform((val) => new Date(val)),
+      ),
+    }),
+  },
 };
-
-
 
 export type LinkInput = z.infer<typeof linkSchema.create.body>;
 export type EndLinkInput = z.infer<typeof linkSchema.end.params>;
