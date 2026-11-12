@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { linkService } from "./lawyer-secretary-links.service.js";
-import type { LinkInput, EndLinkInput, UpdateBodyLinkInput, UpdateParamsLinkInput } from "./lawyer-secretary-links.schema.js";
+import type { LinkInput, EndLinkInput, UpdateBodyLinkInput, UpdateParamsLinkInput, CancelParamsLinkInput, CancelBodyLinkInput } from "./lawyer-secretary-links.schema.js";
 
 export const linkController = {
   async create(req: Request, res: Response) {
@@ -31,6 +31,16 @@ export const linkController = {
     const id = req.params as UpdateParamsLinkInput;
 
     await linkService.updateLink(input, id);
+
+    return res.status(StatusCodes.NO_CONTENT).send();
+  },
+
+  async cancelLinl(req: Request, res: Response) {
+    const input = req.body as  CancelBodyLinkInput;
+    const params = req.params as CancelParamsLinkInput;
+    const userId = res.locals.user;
+
+    await linkService.cancelLink(params, input, userId);
 
     return res.status(StatusCodes.NO_CONTENT).send();
   }
