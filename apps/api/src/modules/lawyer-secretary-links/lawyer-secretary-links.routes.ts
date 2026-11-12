@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authenticate } from "../../middlewares/authenticate.js";
 import { requireAdmin } from "../../middlewares/requireAdmin.js";
 import { validate } from "../../middlewares/validate.js";
-import { linkSchema, endLinkSchema } from "./lawyer-secretary-links.schema.js";
+import { linkSchema } from "./lawyer-secretary-links.schema.js";
 import { linkController } from "./lawyer-secretary-links.controller.js";
 
 const router = Router();
@@ -70,7 +70,7 @@ router.post(
   "/",
   authenticate,
   requireAdmin,
-  validate({ body: linkSchema.body }),
+  validate({ body: linkSchema.create.body }),
   linkController.create,
 );
 
@@ -93,11 +93,44 @@ router.post(
  */
 router.get("/all", authenticate, linkController.list);
 
+/**
+ * @openapi
+ * /links/{id}/end:
+ *   patch:
+ *     summary: Encerrar vínculo entre advogado e secretária
+ *     description: Encerra um vínculo ativo definindo a data de término para a data atual. Acesso restrito a administradores.
+ *     tags:
+ *       - Vínculos advogado-secretária
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: ID do vínculo a ser encerrado.
+ *         example: "b838ea95-e403-44a6-848f-c17d452928af"
+ *     responses:
+ *       204:
+ *         description: Vínculo encerrado com sucesso.
+ *       400:
+ *         description: ID do vínculo inválido.
+ *       401:
+ *         description: Usuário não autenticado.
+ *       403:
+ *         description: Usuário sem permissão.
+ *       404:
+ *         description: Vínculo não encontrado.
+ *       409:
+ *         description: O vínculo já foi encerrado anteriormente.
+ */
 router.patch(
   "/:id/end",
   authenticate,
   requireAdmin,
-  validate({ params: endLinkSchema.params }),
+  validate({ params: linkSchema.end.params }),
   linkController.endLink,
 );
 
