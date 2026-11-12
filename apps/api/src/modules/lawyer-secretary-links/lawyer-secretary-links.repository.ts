@@ -37,6 +37,7 @@ export const linkRepository = {
       where: {
         id: data.id,
         endDate: null,
+        canceledAt: null,
       },
       data: {
         endDate: date,

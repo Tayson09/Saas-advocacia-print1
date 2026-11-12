@@ -99,6 +99,14 @@ export const linkService = {
       );
     }
 
+    if (link.canceledAt !== null) {
+      throw new AppError(
+        "O vínculo não pode ser encerrado, porque ele está cancelado.",
+        StatusCodes.CONFLICT,
+        "LINK_ALREADY_CANCELED",
+      );
+    }
+
     const today = new Date();
     today.setHours(0, 0, 0, 0)
 
