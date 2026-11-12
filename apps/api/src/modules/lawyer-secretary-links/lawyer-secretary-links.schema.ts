@@ -47,9 +47,17 @@ export const linkSchema = {
       ),
     }),
   },
+  cancel: {
+    params: idParamsSchema,
+    body: z.object({
+      reason: z.string().trim().optional(),
+    })
+  },
 };
 
 export type LinkInput = z.infer<typeof linkSchema.create.body>;
 export type EndLinkInput = z.infer<typeof linkSchema.end.params>;
 export type UpdateBodyLinkInput = z.infer<typeof linkSchema.update.body>;
 export type UpdateParamsLinkInput = z.infer<typeof linkSchema.update.params>;
+export type CancelParamsLinkInput = z.infer<typeof linkSchema.cancel.params>;
+export type CancelBodyLinkInput = z.infer<typeof linkSchema.cancel.body>;
