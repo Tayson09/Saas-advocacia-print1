@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authenticate } from "../../middlewares/authenticate.js";
 import { requireAdmin } from "../../middlewares/requireAdmin.js";
 import { validate } from "../../middlewares/validate.js";
-import { linkSchema } from "./lawyer-secretary-links.schema.js";
+import { linkSchema, endLinkSchema } from "./lawyer-secretary-links.schema.js";
 import { linkController } from "./lawyer-secretary-links.controller.js";
 
 const router = Router();
@@ -92,5 +92,13 @@ router.post(
  *         description: Usuário sem permissão.
  */
 router.get("/all", authenticate, linkController.list);
+
+router.patch(
+  "/:id/end",
+  authenticate,
+  requireAdmin,
+  validate({ params: endLinkSchema.params }),
+  linkController.endLink,
+);
 
 export default router;
