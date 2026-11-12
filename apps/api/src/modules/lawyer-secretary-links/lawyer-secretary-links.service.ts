@@ -3,10 +3,68 @@ import { userRepository } from "../user/user.repositories.js";
 import type {
   LinkInput,
   EndLinkInput,
+  UpdateBodyLinkInput,
+  UpdateParamsLinkInput,
 } from "./lawyer-secretary-links.schema.js";
 import { AppError } from "../../helpers/errors/app-error.js";
 import { StatusCodes } from "http-status-codes";
 import { UserRole } from "../../generated/prisma/enums.js";
+import { LawyerSecretaryLink } from "../../generated/prisma/client.js";
+
+async function findLinkOrThrow(id: string) {
+  const link = await linkRepository.findById(id);
+
+  if (!link) {
+    throw new AppError(
+      "Vínculo não encontrado.",
+      StatusCodes.NOT_FOUND,
+      "NOT_FOUND_LINK",
+    );
+  }
+
+  return link;
+}
+
+function ensureLinkNotCancelled(link: LawyerSecretaryLink): void {
+  if (link.canceledAt !== null) {
+    throw new AppError(
+      "O vínculo não pode ser modificado, porque ele está cancelado.",
+      StatusCodes.CONFLICT,
+      "LINK_ALREADY_CANCELED",
+    );
+  }
+}
+
+function ensureLinkIsntFinished(link: LawyerSecretaryLink, today: Date): void {
+
+  if (link.endDate !== null && link.endDate < today) {
+    throw new AppError(
+      "O vínculo não pode ser alterado, porque ele já terminou.",
+      StatusCodes.CONFLICT,
+      "LINK_ALREADY_ENDED",
+    );
+  }
+}
+
+function ensureValidLinkRange(startDate: Date, endDate: Date | null): void {
+  if (endDate && endDate < startDate) {
+    throw new AppError(
+      "A data final não pode ser anterior à data de início",
+      StatusCodes.UNPROCESSABLE_ENTITY,
+      "INVALID_DATE_RANGE",
+    );
+  }
+}
+
+function ensureLinkWasUpdated(count: number): void {
+  if (count === 0) {
+    throw new AppError(
+      "O vínculo não pôde ser atualizado. Verifique se ele existe, está ativo e ainda pode ser modificado.",
+      StatusCodes.CONFLICT,
+      "LINK_NOT_MODIFIABLE",
+    );
+  }
+}
 
 export const linkService = {
   async create(input: LinkInput) {
@@ -20,13 +78,7 @@ export const linkService = {
       );
     }
 
-    if (endDate && endDate < startDate) {
-      throw new AppError(
-        "A data final não pode ser anterior à data de início",
-        StatusCodes.UNPROCESSABLE_ENTITY,
-        "INVALID_DATE_RANGE",
-      );
-    }
+    ensureValidLinkRange(startDate, endDate);
 
     const [lawyer, secretary] = await Promise.all([
       userRepository.findForAuthorization(lawyerId),
@@ -88,45 +140,41 @@ export const linkService = {
     return linkRepository.list();
   },
 
-  async  endLink(input: EndLinkInput) {
-    const link = await linkRepository.findById(input.id);
+  async endLink(input: EndLinkInput) {
+    const link = await findLinkOrThrow(input.id);
 
-    if (!link) {
-      throw new AppError(
-        "Vínculo não encontrado.",
-        StatusCodes.NOT_FOUND,
-        "NOT_FOUND_LINK",
-      );
-    }
-
-    if (link.canceledAt !== null) {
-      throw new AppError(
-        "O vínculo não pode ser encerrado, porque ele está cancelado.",
-        StatusCodes.CONFLICT,
-        "LINK_ALREADY_CANCELED",
-      );
-    }
+    ensureLinkNotCancelled(link);
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0)
+    today.setHours(0, 0, 0, 0);
 
-    if (link.endDate !== null && link.endDate < today ) {
-      throw new AppError(
-        "O vínculo não pode ser encerrado, porque ele já terminou.",
-        StatusCodes.CONFLICT,
-        "LINK_ALREADY_ENDED",
-      );
-    }
+    ensureLinkIsntFinished(link, today);
 
     const result = await linkRepository.endLink(input, new Date());
 
-    if (result === 0) {
-      throw new AppError(
-        "O vínculo não pode ser encerrado, porque ele já terminou.",
-        StatusCodes.CONFLICT,
-        "LINK_ALREADY_ENDED",
-      );
-    }
+    ensureLinkWasUpdated(result);
+
+    return;
+  },
+
+  async updateLink(
+    { endDate }: UpdateBodyLinkInput,
+    { id }: UpdateParamsLinkInput,
+  ) {
+    const link = await findLinkOrThrow(id);
+
+    ensureLinkNotCancelled(link);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    ensureLinkIsntFinished(link, today);
+
+    ensureValidLinkRange(link.startDate, endDate);
+
+    const result = await linkRepository.updateLink({ id }, { endDate }, today);
+
+    ensureLinkWasUpdated(result);
 
     return;
   },
