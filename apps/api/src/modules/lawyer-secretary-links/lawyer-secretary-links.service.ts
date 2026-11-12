@@ -88,7 +88,7 @@ export const linkService = {
     return linkRepository.list();
   },
 
-  async endLink(input: EndLinkInput) {
+  async  endLink(input: EndLinkInput) {
     const link = await linkRepository.findById(input.id);
 
     if (!link) {
@@ -99,7 +99,10 @@ export const linkService = {
       );
     }
 
-    if (link.endDate !== null && link.endDate < new Date()) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0)
+
+    if (link.endDate !== null && link.endDate < today ) {
       throw new AppError(
         "O vínculo não pode ser encerrado, porque ele já terminou.",
         StatusCodes.CONFLICT,
