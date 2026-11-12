@@ -134,4 +134,12 @@ router.patch(
   linkController.endLink,
 );
 
+router.patch(
+  "/:id",
+  authenticate,
+  requireAdmin,
+  validate({ params: linkSchema.update.params, body: linkSchema.update.body }),
+  linkController.updateLink,
+);
+
 export default router;

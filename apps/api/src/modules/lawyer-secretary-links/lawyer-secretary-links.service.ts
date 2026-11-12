@@ -36,7 +36,6 @@ function ensureLinkNotCancelled(link: LawyerSecretaryLink): void {
 }
 
 function ensureLinkIsntFinished(link: LawyerSecretaryLink, today: Date): void {
-
   if (link.endDate !== null && link.endDate < today) {
     throw new AppError(
       "O vínculo não pode ser alterado, porque ele já terminou.",
@@ -62,6 +61,16 @@ function ensureLinkWasUpdated(count: number): void {
       "O vínculo não pôde ser atualizado. Verifique se ele existe, está ativo e ainda pode ser modificado.",
       StatusCodes.CONFLICT,
       "LINK_NOT_MODIFIABLE",
+    );
+  }
+}
+
+function ensureLinkHasStarted(link: LawyerSecretaryLink, today: Date): void {
+  if (link.startDate > today) {
+    throw new AppError(
+      "O vínculo ainda não começou e não pode ser encerrado.",
+      StatusCodes.CONFLICT,
+      "LINK_NOT_STARTED",
     );
   }
 }
@@ -148,6 +157,8 @@ export const linkService = {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    ensureLinkHasStarted(link, today);
+    
     ensureLinkIsntFinished(link, today);
 
     const result = await linkRepository.endLink(input, new Date());

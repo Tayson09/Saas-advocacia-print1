@@ -26,7 +26,7 @@ export const linkController = {
     return res.status(StatusCodes.NO_CONTENT).send();
   },
 
-  async updateLinl(req: Request, res: Response) {
+  async updateLink(req: Request, res: Response) {
     const input = req.body as UpdateBodyLinkInput;
     const id = req.params as UpdateParamsLinkInput;
 
