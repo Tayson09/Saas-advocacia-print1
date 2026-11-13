@@ -134,6 +134,115 @@ router.patch(
   linkController.endLink,
 );
 
+/**
+ * @openapi
+ * /links/{id}/cancel:
+ *   patch:
+ *     summary: Cancelar vínculo entre advogado e secretária
+ *     description: Cancela um vínculo que ainda não foi encerrado, registrando o motivo, a data e o administrador responsável. Acesso restrito a administradores.
+ *     tags:
+ *       - Vínculos advogado-secretária
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: ID do vínculo a ser cancelado.
+ *         example: "b838ea95-e403-44a6-848f-c17d452928af"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - reason
+ *             properties:
+ *               reason:
+ *                 type: string
+ *                 description: Motivo do cancelamento do vínculo.
+ *                 example: "Vínculo cadastrado incorretamente."
+ *           example:
+ *             reason: "Vínculo cadastrado incorretamente."
+ *     responses:
+ *       204:
+ *         description: Vínculo cancelado com sucesso.
+ *       400:
+ *         description: ID ou dados da requisição inválidos.
+ *       401:
+ *         description: Usuário não autenticado.
+ *       403:
+ *         description: Usuário sem permissão.
+ *       404:
+ *         description: Vínculo não encontrado.
+ *       409:
+ *         description: O vínculo já foi cancelado ou encerrado anteriormente.
+ */
+router.patch(
+  "/:id/cancel",
+  authenticate,
+  requireAdmin,
+  validate({ params: linkSchema.cancel.params, body: linkSchema.cancel.body }),
+  linkController.cancelLink,
+);
+
+
+/**
+ * @openapi
+ * /links/{id}:
+ *   patch:
+ *     summary: Atualizar vínculo entre advogado e secretária
+ *     description: Atualiza a data final de um vínculo que não esteja cancelado ou encerrado. Permite informar null para remover a previsão de término. Acesso restrito a administradores.
+ *     tags:
+ *       - Vínculos advogado-secretária
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: ID do vínculo a ser atualizado.
+ *         example: "b838ea95-e403-44a6-848f-c17d452928af"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - endDate
+ *             properties:
+ *               endDate:
+ *                 type: string
+ *                 format: date
+ *                 nullable: true
+ *                 description: Nova data final do vínculo. Deve ser igual ou posterior à data inicial. Informe null para remover a previsão de término.
+ *                 example: "2026-12-20"
+ *           example:
+ *             endDate: "2026-12-20"
+ *     responses:
+ *       204:
+ *         description: Vínculo atualizado com sucesso.
+ *       400:
+ *         description: ID ou dados da requisição inválidos.
+ *       401:
+ *         description: Usuário não autenticado.
+ *       403:
+ *         description: Usuário sem permissão.
+ *       404:
+ *         description: Vínculo não encontrado.
+ *       409:
+ *         description: O vínculo está cancelado ou já foi encerrado.
+ *       422:
+ *         description: A data final é anterior à data inicial.
+ */
 router.patch(
   "/:id",
   authenticate,

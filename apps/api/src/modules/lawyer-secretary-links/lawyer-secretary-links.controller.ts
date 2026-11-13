@@ -35,7 +35,7 @@ export const linkController = {
     return res.status(StatusCodes.NO_CONTENT).send();
   },
 
-  async cancelLinl(req: Request, res: Response) {
+  async cancelLink(req: Request, res: Response) {
     const input = req.body as  CancelBodyLinkInput;
     const params = req.params as CancelParamsLinkInput;
     const userId = res.locals.user;

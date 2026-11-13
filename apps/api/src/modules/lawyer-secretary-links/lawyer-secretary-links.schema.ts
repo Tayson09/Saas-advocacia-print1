@@ -51,7 +51,7 @@ export const linkSchema = {
     params: idParamsSchema,
     body: z.object({
       reason: z.string().trim().optional(),
-    })
+    }).default({})
   },
 };
 
