@@ -201,8 +201,8 @@ export const linkService = {
   async cancelLink(params: CancelParamsLinkInput, input : CancelBodyLinkInput, canceledByID: string) {
     const link = await findLinkOrThrow(params.id);
 
+    
     ensureLinkNotCancelled(link);
-
     const today = normalizeDate();
 
     ensureLinkIsntFinished(link, today); 

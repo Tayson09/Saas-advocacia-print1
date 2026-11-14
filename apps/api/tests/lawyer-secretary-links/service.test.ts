@@ -5,6 +5,8 @@ import type { LawyerSecretaryLink } from "../../src/generated/prisma/client.js";
 import type {
   UpdateBodyLinkInput,
   UpdateParamsLinkInput,
+  CancelBodyLinkInput,
+  CancelParamsLinkInput,
 } from "../../src/modules/lawyer-secretary-links/lawyer-secretary-links.schema.js";
 
 const mocks = vi.hoisted(() => ({
@@ -12,6 +14,7 @@ const mocks = vi.hoisted(() => ({
   createLink: vi.fn(),
   findLinkById: vi.fn(),
   updateLink: vi.fn(),
+  cancelLink: vi.fn(),
 }));
 
 vi.mock("../../src/modules/user/user.repositories.js", () => ({
@@ -27,6 +30,7 @@ vi.mock(
       create: mocks.createLink,
       findById: mocks.findLinkById,
       updateLink: mocks.updateLink,
+      cancelLink: mocks.cancelLink,
     },
   }),
 );
@@ -430,6 +434,144 @@ describe("LawyerSecretaryLinkService", () => {
         input,
         expect.any(Date),
       );
+    });
+  });
+
+  describe("cancel", () => {
+    it("deve rejeitar quando não existir vínculo", async () => {
+      const params: CancelParamsLinkInput = { id: "link-123" };
+      const input: CancelBodyLinkInput = {};
+      const userId: string = "user-123";
+
+      mocks.findLinkById.mockResolvedValue(null);
+
+      await expect(
+        linkService.cancelLink(params, input, userId),
+      ).rejects.toMatchObject({
+        statusCode: 404,
+        code: "NOT_FOUND_LINK",
+      });
+
+      expect(mocks.cancelLink).not.toHaveBeenCalled();
+    });
+
+    it("deve rejeitar quando o vínculo estiver cancelado", async () => {
+      const params: CancelParamsLinkInput = { id: "link-123" };
+      const input: CancelBodyLinkInput = {};
+      const userId: string = "user-123";
+
+      mocks.findLinkById.mockResolvedValue(
+        makeLink({
+          canceledAt: new Date(),
+          cancellationReason: "erro ao criar vínculo",
+        }),
+      );
+
+      await expect(
+        linkService.cancelLink(params, input, userId),
+      ).rejects.toMatchObject({
+        statusCode: 409,
+        code: "LINK_ALREADY_CANCELED",
+      });
+
+      expect(mocks.cancelLink).not.toHaveBeenCalled();
+    });
+
+    it("deve rejeitar quando o vínculo estiver finalizado", async () => {
+      const params: CancelParamsLinkInput = { id: "link-123" };
+      const input: CancelBodyLinkInput = {};
+      const userId: string = "user-123";
+
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() - 1);
+      endDate.setHours(0, 0, 0, 0);
+
+      mocks.findLinkById.mockResolvedValue(
+        makeLink({
+          endDate,
+        }),
+      );
+
+      await expect(
+        linkService.cancelLink(params, input, userId),
+      ).rejects.toMatchObject({
+        statusCode: 409,
+        code: "LINK_ALREADY_ENDED",
+      });
+
+      expect(mocks.cancelLink).not.toHaveBeenCalled();
+    });
+
+    it("deve aceitar", async () => {
+      const params: CancelParamsLinkInput = { id: "link-123" };
+      const input: CancelBodyLinkInput = {};
+      const userId: string = "user-123";
+
+      mocks.findLinkById.mockResolvedValue(makeLink());
+
+      mocks.cancelLink.mockResolvedValue(1);
+
+      const result = await linkService.cancelLink(params, input, userId);
+
+      expect(mocks.findLinkById).toHaveBeenCalled();
+      expect(mocks.cancelLink).toHaveBeenCalledWith(
+        params,
+        expect.any(Date),
+        input,
+        userId,
+      );
+      expect(result).toBeUndefined();
+    });
+
+    it("deve rejeitar quando o repository retornar quando retornar count = 0", async () => {
+      const params: CancelParamsLinkInput = { id: "link-123" };
+      const input: CancelBodyLinkInput = {};
+      const userId: string = "user-123";
+
+      mocks.findLinkById.mockResolvedValue(makeLink());
+
+      mocks.cancelLink.mockResolvedValue(0);
+
+      await expect(
+        linkService.cancelLink(params, input, userId),
+      ).rejects.toMatchObject({
+        statusCode: 409,
+        code: "LINK_NOT_MODIFIABLE",
+      });
+
+      expect(mocks.findLinkById).toHaveBeenCalled();
+      expect(mocks.cancelLink).toHaveBeenCalledWith(
+        params,
+        expect.any(Date),
+        input,
+        userId,
+      );
+    });
+
+    it("deve aceitar quando o vínculo ainda nao tiver começado", async () => {
+      const params: CancelParamsLinkInput = { id: "link-123" };
+      const input: CancelBodyLinkInput = {};
+      const userId: string = "user-123";
+
+      const futureStartDate = new Date();
+      futureStartDate.setDate(futureStartDate.getDate() + 5);
+
+      mocks.findLinkById.mockResolvedValue(
+        makeLink({ startDate: futureStartDate }),
+      );
+
+      mocks.cancelLink.mockResolvedValue(1);
+
+      const result = await linkService.cancelLink(params, input, userId);
+
+      expect(mocks.findLinkById).toHaveBeenCalled();
+      expect(mocks.cancelLink).toHaveBeenCalledWith(
+        params,
+        expect.any(Date),
+        input,
+        userId,
+      );
+      expect(result).toBeUndefined();
     });
   });
 });
