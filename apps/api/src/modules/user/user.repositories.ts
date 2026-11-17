@@ -28,6 +28,18 @@ export const userRepository = {
     });
   },
 
+  // lista usuários ativos, opcionalmente filtrando por perfil, ordenados por nome
+  list(role: UserRole | undefined, db: DbClient = defaultDb) {
+    return db.user.findMany({
+      where: {
+        isActive: true,
+        ...(role ? { role } : {}),
+      },
+      select: publicUserSelect, // nunca devolve passwordHash (RNF02)
+      orderBy: { name: "asc" },
+    });
+  },
+
   findById: (id: string, db: DbClient = defaultDb) =>
     db.user.findUnique({ where: { id }, select: publicUserSelect }),
 

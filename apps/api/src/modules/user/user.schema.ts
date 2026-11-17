@@ -15,5 +15,11 @@ export const completePasswordSetupSchema = z.object({
   password,
 })
 
+// filtro opcional por perfil ao listar usuários (ex.: ?role=LAWYER)
+export const listUsersQuerySchema = z.object({
+  role: z.enum(UserRole, { error: "Perfil de usuário inválido" }).optional(),
+});
+
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type CompletePasswordSetupInput = z.infer<typeof completePasswordSetupSchema>;
+export type ListUsersQuery = z.infer<typeof listUsersQuerySchema>;

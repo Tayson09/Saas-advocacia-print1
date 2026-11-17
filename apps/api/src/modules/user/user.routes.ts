@@ -2,10 +2,18 @@ import { Router } from "express";
 import { authenticate } from "../../middlewares/authenticate.js";
 import { requireAdmin } from "../../middlewares/requireAdmin.js";
 import { validate } from "../../middlewares/validate.js";
-import { completePasswordSetupSchema, createUserSchema } from "./user.schema.js";
+import { completePasswordSetupSchema, createUserSchema, listUsersQuerySchema } from "./user.schema.js";
 import { UserController } from "./user.controllers.js";
 
 const router = Router();
+
+router.get(
+  "/",
+  authenticate,
+  requireAdmin,
+  validate({ query: listUsersQuerySchema }),
+  UserController.list
+);
 
 router.post(
   "/register",
