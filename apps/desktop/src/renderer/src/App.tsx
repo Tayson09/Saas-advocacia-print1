@@ -4,6 +4,7 @@ import { ToastProvider } from './components/ui/Toast'
 import Login from './features/auth/pages/Login'
 import CadastroAdmin from './features/auth/pages/CadastroAdmin'
 import CadastroUsuario from './features/auth/pages/CadastroUsuario'
+import VinculosAdvogadaSecretaria from './features/vinculos/pages/VinculosAdvogadaSecretaria'
 import CompletarCadastro from './features/auth/pages/CompletarCadastro'
 import CadastroConcluido from './features/auth/pages/CadastroConcluido'
 import AutocadastroBloqueado from './features/auth/pages/AutocadastroBloqueado'
@@ -45,6 +46,14 @@ function AppRoutes(): React.JSX.Element {
         element={
           <AdminRoute>
             <CadastroUsuario />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/vinculos"
+        element={
+          <AdminRoute>
+            <VinculosAdvogadaSecretaria />
           </AdminRoute>
         }
       />

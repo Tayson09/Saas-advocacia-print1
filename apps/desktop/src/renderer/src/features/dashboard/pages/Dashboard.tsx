@@ -1,6 +1,6 @@
 import './Dashboard.css'
 import { useNavigate } from 'react-router-dom'
-import { UserPlus } from 'lucide-react'
+import { Link2, UserPlus } from 'lucide-react'
 import AppLayout from '../../../components/layout/AppLayout'
 import Button from '../../../components/ui/Button'
 import { useAuth } from '../../auth/context'
@@ -21,17 +21,33 @@ function Dashboard(): React.JSX.Element {
         </header>
 
         {isAdmin && (
-          <div className="dashboard__card">
-            <div>
-              <strong className="dashboard__card-title">Gestão de usuários</strong>
-              <p className="dashboard__card-text">
-                Adicione advogados(as) e secretários(as) à equipe do escritório.
-              </p>
+          <>
+            <div className="dashboard__card">
+              <div>
+                <strong className="dashboard__card-title">Gestão de usuários</strong>
+                <p className="dashboard__card-text">
+                  Adicione advogados(as) e secretários(as) à equipe do escritório.
+                </p>
+              </div>
+              <Button leftIcon={<UserPlus size={16} />} onClick={() => navigate('/usuarios/novo')}>
+                Cadastrar usuário
+              </Button>
             </div>
-            <Button leftIcon={<UserPlus size={16} />} onClick={() => navigate('/usuarios/novo')}>
-              Cadastrar usuário
-            </Button>
-          </div>
+
+            <div className="dashboard__card">
+              <div>
+                <strong className="dashboard__card-title">
+                  Vínculos advogado(a) ↔ secretário(a)
+                </strong>
+                <p className="dashboard__card-text">
+                  Defina quais secretários(as) apoiam cada advogado(a) do escritório.
+                </p>
+              </div>
+              <Button leftIcon={<Link2 size={16} />} onClick={() => navigate('/vinculos')}>
+                Gerenciar vínculos
+              </Button>
+            </div>
+          </>
         )}
       </div>
     </AppLayout>
