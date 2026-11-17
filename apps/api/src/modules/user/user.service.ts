@@ -8,6 +8,7 @@ import { StatusCodes } from "http-status-codes";
 import type { UserRole } from "../../generated/prisma/enums.js";
 import { CompletePasswordSetupInput } from "./user.schema.js";
 import { sendPasswordSetupEmail } from "../../lib/email.service.js";
+import type { ListUsersQuery } from "./user.schema.js";
 
 const PASSWORD_SETUP_TOKEN = 60 * 60 * 1000 // 1HORA
 
@@ -24,6 +25,11 @@ function invalidSetupToken(): AppError {
 }
 
 export const UserService = {
+  // lista usuários ativos, opcionalmente filtrando por perfil (para seleção no front)
+  list(query: ListUsersQuery) {
+    return userRepository.list(query.role);
+  },
+
   async create(input: CreateUserInput, adminId: string, ip?: string) {
     const existingUser = await userRepository.findByEmail(input.email);
 

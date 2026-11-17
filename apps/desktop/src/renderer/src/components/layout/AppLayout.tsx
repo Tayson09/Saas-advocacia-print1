@@ -32,12 +32,17 @@ function AppLayout({ children }: AppLayoutProps): React.JSX.Element {
   return (
     <div className="app-shell">
       <header className="app-topbar">
-        <div className="app-topbar__brand">
+        <button
+          type="button"
+          className="app-topbar__brand"
+          onClick={() => navigate('/dashboard')}
+          aria-label="Ir para o painel"
+        >
           <span className="app-topbar__logo">
             <Scale size={18} />
           </span>
           <span className="app-topbar__name">VERUM</span>
-        </div>
+        </button>
 
         <div className="app-topbar__user">
           <div className="app-topbar__identity">
