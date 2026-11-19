@@ -6,6 +6,8 @@ import CadastroAdmin from './features/auth/pages/CadastroAdmin'
 import CadastroUsuario from './features/auth/pages/CadastroUsuario'
 import VinculosAdvogadaSecretaria from './features/vinculos/pages/VinculosAdvogadaSecretaria'
 import CompletarCadastro from './features/auth/pages/CompletarCadastro'
+import EsqueciSenha from './features/auth/pages/EsqueciSenha'
+import RedefinirSenha from './features/auth/pages/RedefinirSenha'
 import CadastroConcluido from './features/auth/pages/CadastroConcluido'
 import AutocadastroBloqueado from './features/auth/pages/AutocadastroBloqueado'
 import Dashboard from './features/dashboard/pages/Dashboard'
@@ -31,6 +33,8 @@ function AppRoutes(): React.JSX.Element {
       <Route path="/login" element={<Login />} />
       <Route path="/cadastro-admin" element={<CadastroAdmin />} />
       <Route path="/complete-setup" element={<CompletarCadastro />} />
+      <Route path="/forgot-password" element={<EsqueciSenha />} />
+      <Route path="/reset-password" element={<RedefinirSenha />} />
       <Route path="/cadastro-concluido" element={<CadastroConcluido />} />
       <Route path="/autocadastro-bloqueado" element={<AutocadastroBloqueado />} />
       <Route

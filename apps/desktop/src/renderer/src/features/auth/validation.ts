@@ -109,6 +109,31 @@ export const completeSetupSchema = z
 
 export type CompleteSetupForm = z.infer<typeof completeSetupSchema>
 
+// solicitação de redefinição de senha: só o e-mail
+export const forgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(1, 'E-mail é obrigatório')
+    .pipe(z.email('E-mail inválido'))
+})
+
+export type ForgotPasswordForm = z.infer<typeof forgotPasswordSchema>
+
+// redefinição de senha pelo usuário (via link do e-mail) — mesmo formato do primeiro acesso
+export const resetPasswordSchema = z
+  .object({
+    password,
+    confirmPassword: z.string()
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'As senhas não coincidem',
+    path: ['confirmPassword']
+  })
+
+export type ResetPasswordForm = z.infer<typeof resetPasswordSchema>
+
 // quantos requisitos a senha cumpre (0..5) — usado pelo medidor de força
 export function passwordScore(value: string): number {
   return passwordRequirements.filter((req) => req.test(value)).length

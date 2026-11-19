@@ -160,6 +160,13 @@ function Login(): React.JSX.Element {
             >
               Lembrar meu e-mail
             </Checkbox>
+            <button
+              type="button"
+              className="login__forgot"
+              onClick={() => navigate('/forgot-password')}
+            >
+              Esqueci minha senha
+            </button>
           </div>
 
           {error && <Alert variant="danger">{error}</Alert>}
