@@ -13,9 +13,13 @@ const envSchema = z.object({
   JWT_ISSUER:  z.string().default('api-advocacia'),
   JWT_AUDIENCE: z.string().default('electron-app'),
 
-  API_KEY_RESEND: z.string({ error: "API_KEY_RESEND é obrigatória" }).startsWith("re_", "A chave do Resend deve começar com 're_'"),
+  // Envio de e-mail via SMTP (Gmail). SMTP_PASS é a "senha de app" do Gmail (16 caracteres).
+  SMTP_HOST: z.string().default("smtp.gmail.com"),
+  SMTP_PORT: z.coerce.number().int().positive().default(465),
+  SMTP_USER: z.string({ error: "SMTP_USER é obrigatório" }).min(1, "SMTP_USER é obrigatório"),
+  SMTP_PASS: z.string({ error: "SMTP_PASS é obrigatório" }).min(1, "SMTP_PASS é obrigatório"),
   EMAIL_FROM: z.string({ error: "EMAIL_FROM é obrigatório" }),
-  FRONTEND_URL: z.url({ error: "FRONTEND_URL deve ser uma URL válida" }) 
+  FRONTEND_URL: z.url({ error: "FRONTEND_URL deve ser uma URL válida" })
 });
 
 const _env = envSchema.safeParse(process.env);
