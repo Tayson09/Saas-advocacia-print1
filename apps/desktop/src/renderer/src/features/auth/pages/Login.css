@@ -17,6 +17,21 @@
   justify-content: space-between;
 }
 
+.login__forgot {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-primary, #1e40af);
+  text-decoration: none;
+}
+
+.login__forgot:hover {
+  text-decoration: underline;
+}
+
 .login__first-access {
   display: flex;
   flex-direction: column;

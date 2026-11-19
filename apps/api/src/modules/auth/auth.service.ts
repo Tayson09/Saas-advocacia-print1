@@ -1,6 +1,7 @@
+import crypto from "node:crypto";
 import argon2 from "argon2";
 import { userRepository } from "../user/user.repositories.js"
-import { type LoginInput, type refreshInput } from "./auth.schema.js"
+import { type LoginInput, type refreshInput, type ForgotPasswordInput, type ResetPasswordInput } from "./auth.schema.js"
 import { AppError } from "../../helpers/errors/app-error.js";
 import { StatusCodes } from "http-status-codes";
 import * as tokenService from "../token/token.service.js";
@@ -8,9 +9,15 @@ import { TokenRepository } from "../token/token.repositoy.js";
 import { randomUUID } from "node:crypto";
 import { auditRepository } from "../audit/audit.repository.js";
 import { prisma } from "../../lib/prisma.js";
+import { sendPasswordResetEmail } from "../../lib/email.service.js";
+
+const PASSWORD_RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hora
 
 const invalidRefreshToken = () =>
   new AppError("Refresh token inválido ou expirado", StatusCodes.UNAUTHORIZED, "INVALID_REFRESH_TOKEN");
+
+const invalidResetToken = () =>
+  new AppError("Link de redefinição inválido ou expirado", StatusCodes.BAD_REQUEST, "INVALID_PASSWORD_RESET_TOKEN");
 
 async function handleReuse(familyId: string, userId: string, ip?: string) {
   const { count } = await TokenRepository.revokeFamily(familyId);
@@ -136,5 +143,63 @@ export const AuthService = {
     }
 
     return { accessToken, refreshToken: newRefreshToken };
+  },
+
+  // Solicita redefinição de senha. Responde sempre da mesma forma (não revela se o e-mail existe).
+  async requestPasswordReset(input: ForgotPasswordInput, ip?: string) {
+    const user = await userRepository.findByEmailWithPassword(input.email);
+
+    // Só envia se a conta existe e está ativa. Em qualquer caso, não lança erro.
+    if (!user || !user.isActive) return;
+
+    const rawToken = crypto.randomBytes(32).toString("base64url");
+    const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+    const expiresAt = new Date(Date.now() + PASSWORD_RESET_TOKEN_TTL_MS);
+
+    await prisma.$transaction(async (tx) => {
+      // invalida links de reset anteriores ainda válidos
+      await userRepository.invalidatePasswordResetTokens(user.id, tx);
+      await userRepository.createPasswordResetToken({ userId: user.id, tokenHash, expiresAt }, tx);
+      await auditRepository.log({ action: "PASSWORD_RESET_REQUESTED", userId: user.id, ip }, tx);
+    });
+
+    try {
+      await sendPasswordResetEmail({ to: user.email, name: user.name, token: rawToken });
+    } catch (error) {
+      // falha de envio não deve revelar nada ao cliente; registra para diagnóstico
+      console.error("Falha ao enviar e-mail de redefinição de senha", error);
+    }
+  },
+
+  // Redefine a senha a partir do token recebido por e-mail.
+  async resetPassword(input: ResetPasswordInput, ip?: string) {
+    const tokenHash = crypto.createHash("sha256").update(input.token).digest("hex");
+    const resetToken = await userRepository.findPasswordResetByHash(tokenHash);
+
+    if (!resetToken || resetToken.usedAt || resetToken.expiresAt <= new Date()) {
+      throw invalidResetToken();
+    }
+
+    const passwordHash = await argon2.hash(input.password);
+
+    await prisma.$transaction(async (tx) => {
+      const consumed = await userRepository.consumePasswordResetToken(resetToken.id, tx);
+      if (consumed.count !== 1) throw invalidResetToken();
+
+      const updated = await tx.user.updateMany({
+        where: { id: resetToken.userId, isActive: true },
+        data: {
+          passwordHash,
+          // garante a conta ativada caso o usuário nunca tenha concluído o primeiro acesso
+          passwordSetupCompletedAt: resetToken.user.passwordSetupCompletedAt ?? new Date(),
+        },
+      });
+
+      if (updated.count !== 1) throw invalidResetToken();
+
+      // encerra todas as sessões ativas: quem sabia a senha antiga perde o acesso
+      await TokenRepository.revokeAllForUser(resetToken.userId, tx);
+      await auditRepository.log({ action: "PASSWORD_RESET_COMPLETED", userId: resetToken.userId, ip }, tx);
+    });
   },
 }
