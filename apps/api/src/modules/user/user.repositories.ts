@@ -82,5 +82,37 @@ export const userRepository = {
         usedAt: new Date(),
       },
     });
+  },
+
+  createPasswordResetToken(
+    data: { userId: string; tokenHash: string; expiresAt: Date },
+    db: DbClient = defaultDb
+  ) {
+    return db.passwordResetToken.create({ data });
+  },
+
+  // invalida tokens de reset ainda válidos do usuário (só o mais recente deve valer)
+  invalidatePasswordResetTokens(userId: string, db: DbClient = defaultDb) {
+    return db.passwordResetToken.updateMany({
+      where: { userId, usedAt: null },
+      data: { usedAt: new Date() },
+    });
+  },
+
+  findPasswordResetByHash(tokenHash: string, db: DbClient = defaultDb) {
+    return db.passwordResetToken.findUnique({ where: { tokenHash }, include: { user: true } });
+  },
+
+  consumePasswordResetToken(id: string, db: DbClient = defaultDb) {
+    return db.passwordResetToken.updateMany({
+      where: {
+        id,
+        usedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      data: {
+        usedAt: new Date(),
+      },
+    });
   }
 };

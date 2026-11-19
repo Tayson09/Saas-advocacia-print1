@@ -35,4 +35,11 @@ export const TokenRepository = {
       where: { familyId, revokedAt: null },
       data: { revokedAt: new Date() },
     }),
+
+  // revoga todas as sessões ativas do usuário (ex.: após redefinir a senha)
+  revokeAllForUser: (userId: string, db: DbClient = defaultDb) =>
+    db.refreshToken.updateMany({
+      where: { userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    }),
 }
