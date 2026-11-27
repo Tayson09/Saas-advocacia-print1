@@ -1,7 +1,12 @@
 import crypto from "node:crypto";
 import argon2 from "argon2";
-import { userRepository } from "../user/user.repositories.js"
-import { type LoginInput, type refreshInput, type ForgotPasswordInput, type ResetPasswordInput } from "./auth.schema.js"
+import { userRepository } from "../user/user.repositories.js";
+import {
+  type LoginInput,
+  type refreshInput,
+  type ForgotPasswordInput,
+  type ResetPasswordInput,
+} from "./auth.schema.js";
 import { AppError } from "../../helpers/errors/app-error.js";
 import { StatusCodes } from "http-status-codes";
 import * as tokenService from "../token/token.service.js";
@@ -14,15 +19,26 @@ import { sendPasswordResetEmail } from "../../lib/email.service.js";
 const PASSWORD_RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hora
 
 const invalidRefreshToken = () =>
-  new AppError("Refresh token inválido ou expirado", StatusCodes.UNAUTHORIZED, "INVALID_REFRESH_TOKEN");
+  new AppError(
+    "Refresh token inválido ou expirado",
+    StatusCodes.UNAUTHORIZED,
+    "INVALID_REFRESH_TOKEN",
+  );
 
 const invalidResetToken = () =>
-  new AppError("Link de redefinição inválido ou expirado", StatusCodes.BAD_REQUEST, "INVALID_PASSWORD_RESET_TOKEN");
+  new AppError(
+    "Link de redefinição inválido ou expirado",
+    StatusCodes.BAD_REQUEST,
+    "INVALID_PASSWORD_RESET_TOKEN",
+  );
 
 async function handleReuse(familyId: string, userId: string, ip?: string) {
   const { count } = await TokenRepository.revokeFamily(familyId);
   await auditRepository.log({
-    action: count > 0 ? "REFRESH_TOKEN_REUSE_FAMILY_REVOKED" : "REFRESH_TOKEN_REUSE_ATTEMPT",
+    action:
+      count > 0
+        ? "REFRESH_TOKEN_REUSE_FAMILY_REVOKED"
+        : "REFRESH_TOKEN_REUSE_ATTEMPT",
     userId,
     ip,
   });
@@ -33,17 +49,32 @@ export const AuthService = {
     const user = await userRepository.findByEmailWithPassword(input.email);
 
     if (!user) {
-      throw new AppError("Usuário não encontrado", StatusCodes.NOT_FOUND, "AUTH_USER_NOT_FOUND");
+      throw new AppError(
+        "Usuário não encontrado",
+        StatusCodes.NOT_FOUND,
+        "AUTH_USER_NOT_FOUND",
+      );
     }
 
-    const isValidPassoword = await argon2.verify(user.passwordHash, input.password);
+    const isValidPassoword = await argon2.verify(
+      user.passwordHash,
+      input.password,
+    );
 
     if (!isValidPassoword) {
-      throw new AppError("Senha incorreta", StatusCodes.UNAUTHORIZED, "AUTH_INVALID_PASSWORD");
+      throw new AppError(
+        "Senha incorreta",
+        StatusCodes.UNAUTHORIZED,
+        "AUTH_INVALID_PASSWORD",
+      );
     }
 
     if (!user.isActive) {
-      throw new AppError("Acesso bloqueado. Entre em contato com o administrador.", StatusCodes.FORBIDDEN, "USER_ACCOUNT_DISABLED");
+      throw new AppError(
+        "Acesso bloqueado. Entre em contato com o administrador.",
+        StatusCodes.FORBIDDEN,
+        "USER_ACCOUNT_DISABLED",
+      );
     }
 
     const accessToken = tokenService.generateAccessToken(user);
@@ -55,11 +86,13 @@ export const AuthService = {
       familyId: randomUUID(),
       tokenHash: refreshHashToken,
       expiresAt: new Date(Date.now() + tokenService.REFRESH_TOKEN_TTL_MS),
-      sessionExpiresAt: new Date(Date.now() + tokenService.SESSION_MAX_LIFETIME_MS)
+      sessionExpiresAt: new Date(
+        Date.now() + tokenService.SESSION_MAX_LIFETIME_MS,
+      ),
     });
 
-    return { 
-      accessToken, 
+    return {
+      accessToken,
       refreshRawToken,
       user: {
         id: user.id,
@@ -67,8 +100,8 @@ export const AuthService = {
         email: user.email,
         role: user.role,
         officeId: user.officeId,
-      } 
-    }
+      },
+    };
   },
 
   async refresh(input: refreshInput, ip?: string) {
@@ -90,7 +123,11 @@ export const AuthService = {
 
     // sessionExpiresAt nulo (registro legado) = inválido
     const sessionExpiresAt = stored.sessionExpiresAt;
-    if (!sessionExpiresAt || stored.expiresAt <= now || sessionExpiresAt <= now) {
+    if (
+      !sessionExpiresAt ||
+      stored.expiresAt <= now ||
+      sessionExpiresAt <= now
+    ) {
       throw invalidRefreshToken();
     }
 
@@ -109,11 +146,14 @@ export const AuthService = {
       id: stored.user.id,
       role: stored.user.role,
       name: stored.user.name,
-      officeId: stored.user.officeId
+      officeId: stored.user.officeId,
     });
     const newRefreshToken = tokenService.generateRefreshToken();
     const newExpiresAt = new Date(
-      Math.min(now.getTime() + tokenService.REFRESH_TOKEN_TTL_MS, sessionExpiresAt.getTime())
+      Math.min(
+        now.getTime() + tokenService.REFRESH_TOKEN_TTL_MS,
+        sessionExpiresAt.getTime(),
+      ),
     );
 
     const rotated = await prisma.$transaction(async (tx) => {
@@ -128,7 +168,7 @@ export const AuthService = {
           expiresAt: newExpiresAt,
           sessionExpiresAt, // herdado, nunca renovado
         },
-        tx
+        tx,
       );
 
       await TokenRepository.setReplacedBy(stored.id, created.id, tx);
@@ -155,18 +195,31 @@ export const AuthService = {
     if (!user || !user.isActive) return;
 
     const rawToken = crypto.randomBytes(32).toString("base64url");
-    const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+    const tokenHash = crypto
+      .createHash("sha256")
+      .update(rawToken)
+      .digest("hex");
     const expiresAt = new Date(Date.now() + PASSWORD_RESET_TOKEN_TTL_MS);
 
     await prisma.$transaction(async (tx) => {
       // invalida links de reset anteriores ainda válidos
       await userRepository.invalidatePasswordResetTokens(user.id, tx);
-      await userRepository.createPasswordResetToken({ userId: user.id, tokenHash, expiresAt }, tx);
-      await auditRepository.log({ action: "PASSWORD_RESET_REQUESTED", userId: user.id, ip }, tx);
+      await userRepository.createPasswordResetToken(
+        { userId: user.id, tokenHash, expiresAt },
+        tx,
+      );
+      await auditRepository.log(
+        { action: "PASSWORD_RESET_REQUESTED", userId: user.id, ip },
+        tx,
+      );
     });
 
     try {
-      await sendPasswordResetEmail({ to: user.email, name: user.name, token: rawToken });
+      await sendPasswordResetEmail({
+        to: user.email,
+        name: user.name,
+        token: rawToken,
+      });
     } catch (error) {
       // falha de envio não deve revelar nada ao cliente; registra para diagnóstico
       console.error("Falha ao enviar e-mail de redefinição de senha", error);
@@ -175,17 +228,27 @@ export const AuthService = {
 
   // Redefine a senha a partir do token recebido por e-mail.
   async resetPassword(input: ResetPasswordInput, ip?: string) {
-    const tokenHash = crypto.createHash("sha256").update(input.token).digest("hex");
+    const tokenHash = crypto
+      .createHash("sha256")
+      .update(input.token)
+      .digest("hex");
     const resetToken = await userRepository.findPasswordResetByHash(tokenHash);
 
-    if (!resetToken || resetToken.usedAt || resetToken.expiresAt <= new Date()) {
+    if (
+      !resetToken ||
+      resetToken.usedAt ||
+      resetToken.expiresAt <= new Date()
+    ) {
       throw invalidResetToken();
     }
 
     const passwordHash = await argon2.hash(input.password);
 
     await prisma.$transaction(async (tx) => {
-      const consumed = await userRepository.consumePasswordResetToken(resetToken.id, tx);
+      const consumed = await userRepository.consumePasswordResetToken(
+        resetToken.id,
+        tx,
+      );
       if (consumed.count !== 1) throw invalidResetToken();
 
       const updated = await tx.user.updateMany({
@@ -193,7 +256,8 @@ export const AuthService = {
         data: {
           passwordHash,
           // garante a conta ativada caso o usuário nunca tenha concluído o primeiro acesso
-          passwordSetupCompletedAt: resetToken.user.passwordSetupCompletedAt ?? new Date(),
+          passwordSetupCompletedAt:
+            resetToken.user.passwordSetupCompletedAt ?? new Date(),
         },
       });
 
@@ -201,7 +265,10 @@ export const AuthService = {
 
       // encerra todas as sessões ativas: quem sabia a senha antiga perde o acesso
       await TokenRepository.revokeAllForUser(resetToken.userId, tx);
-      await auditRepository.log({ action: "PASSWORD_RESET_COMPLETED", userId: resetToken.userId, ip }, tx);
+      await auditRepository.log(
+        { action: "PASSWORD_RESET_COMPLETED", userId: resetToken.userId, ip },
+        tx,
+      );
     });
   },
-}
+};

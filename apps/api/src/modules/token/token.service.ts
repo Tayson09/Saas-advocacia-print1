@@ -49,6 +49,7 @@ export function verifyAccessToken(token: string): {
       audience: JWT_AUDIENCE,
     });
   } catch (error) {
+     console.error("JWT verification error:", error);
     if (error instanceof jwt.TokenExpiredError) {
       throw new AccessTokenExpired();
     }

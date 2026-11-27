@@ -30,7 +30,7 @@ export const UserService = {
     return userRepository.list(query.role);
   },
 
-  async create(input: CreateUserInput, adminId: string, ip?: string) {
+  async create(input: CreateUserInput, adminId: string, officeId: string, ip?: string) {
     const existingUser = await userRepository.findByEmail(input.email);
 
     if (existingUser) throw new AppError("Este e-mail já está cadastrado", StatusCodes.CONFLICT, "EMAIL_ALREADY_EXISTS");
@@ -53,6 +53,7 @@ export const UserService = {
           passwordHash,
           passwordSetupCompletedAt: null,
           isActive: true,
+          officeId,
         }, tx
       );
 

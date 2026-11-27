@@ -6,19 +6,33 @@ import { StatusCodes } from "http-status-codes";
 export const requireAdmin: RequestHandler = async (
   _req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const userId = res.locals.userId as string | undefined;
 
-    if (!userId) return next(new AppError("Autenticação necessária", StatusCodes.UNAUTHORIZED, "UNAUTHENTICATED"));
+    if (!userId)
+      return next(
+        new AppError(
+          "Autenticação necessária",
+          StatusCodes.UNAUTHORIZED,
+          "UNAUTHENTICATED",
+        ),
+      );
 
     const user = await userRepository.findForAuthorization(userId);
 
-    if (!user || !user.isActive) return next(new AppError("Acesso restrito a administradores", StatusCodes.FORBIDDEN, "FORBIDDEN"));
+    if (!user || !user.isActive || user.role !== "ADMIN")
+      return next(
+        new AppError(
+          "Acesso restrito a administradores",
+          StatusCodes.FORBIDDEN,
+          "FORBIDDEN",
+        ),
+      );
 
     return next();
   } catch (error) {
     return next(error);
   }
-}
+};

@@ -9,19 +9,24 @@ export const AuthController = {
   },
 
   async refresh(req: Request, res: Response) {
-    res.status(StatusCodes.OK).json(await AuthService.refresh(req.body, req.ip));
+    res
+      .status(StatusCodes.OK)
+      .json(await AuthService.refresh(req.body, req.ip));
   },
 
   async forgotPassword(req: Request, res: Response) {
     await AuthService.requestPasswordReset(req.body, req.ip);
     // resposta genérica: não revela se o e-mail existe
     res.status(StatusCodes.OK).json({
-      message: "Se houver uma conta com este e-mail, enviaremos um link para redefinir a senha.",
+      message:
+        "Se houver uma conta com este e-mail, enviaremos um link para redefinir a senha.",
     });
   },
 
   async resetPassword(req: Request, res: Response) {
     await AuthService.resetPassword(req.body, req.ip);
-    res.status(StatusCodes.OK).json({ message: "Senha redefinida com sucesso!" });
-  }
+    res
+      .status(StatusCodes.OK)
+      .json({ message: "Senha redefinida com sucesso!" });
+  },
 };
