@@ -120,14 +120,97 @@ model LawyerSecretaryLink {
   @@map("lawyer_secretary_links")
 }
 
+
+enum ClientType {
+  INDIVIDUAL
+  COMPANY
+}
+
+enum AddressType {
+  RESIDENTIAL
+  COMMERCIAL
+  OTHER
+}
 model Office {
   id        String   @id @default(uuid()) @db.Uuid
   cnpj      String   @unique @db.VarChar(14)
   name      String
   tradeName String?  @map("trade_name")
 
+  clients Client[]
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("offices")
+}
+
+model Client {
+  id        String     @id @default(uuid()) @db.Uuid
+  officeId  String     @map("office_id") @db.Uuid
+  type      ClientType
+  name      String
+  document  String     @db.VarChar(14)
+  email     String?
+  phone     String?
+
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  office          Office           @relation(fields: [officeId], references: [id], onDelete: Restrict)
+  individualData  IndividualClient?
+  companyData     CompanyClient?
+  addresses       ClientAddress[]
+
+  @@unique([officeId, document])
+  @@index([officeId])
+  @@map("clients")
+}
+
+model IndividualClient {
+  clientId      String    @id @map("client_id") @db.Uuid
+  birthDate     DateTime? @map("birth_date") @db.Date
+  rg            String?
+  maritalStatus String?   @map("marital_status")
+  profession    String?
+  nationality   String?
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@map("individual_clients")
+}
+
+model CompanyClient {
+  clientId              String    @id @map("client_id") @db.Uuid
+  tradeName             String?   @map("trade_name")
+  stateRegistration     String?   @map("state_registration")
+  municipalRegistration String?  @map("municipal_registration")
+  openingDate           DateTime? @map("opening_date") @db.Date
+  legalNature           String?   @map("legal_nature")
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@map("company_clients")
+}
+
+model ClientAddress {
+  id           String      @id @default(uuid()) @db.Uuid
+  clientId     String      @map("client_id") @db.Uuid
+  type         AddressType
+  zipCode      String      @map("zip_code") @db.VarChar(8)
+  street       String
+  number       String?
+  complement   String?
+  neighborhood String?
+  city         String
+  state        String      @db.VarChar(2)
+  isPrimary    Boolean     @default(false) @map("is_primary")
+
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+  @@map("client_addresses")
 }
