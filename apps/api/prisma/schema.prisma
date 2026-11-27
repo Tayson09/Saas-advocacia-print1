@@ -15,6 +15,7 @@ enum UserRole {
 
 model User {
   id                       String                @id @default(uuid()) @db.Uuid
+  officeId                 String                @map("office_id") @db.Uuid
   name                     String
   email                    String                @unique
   passwordHash             String                @map("password_hash")
@@ -27,6 +28,7 @@ model User {
   passwordSetupTokens      PasswordSetupToken[]
   passwordResetTokens      PasswordResetToken[]
   refreshTokens            RefreshToken[]
+  office                   Office                @relation(fields: [officeId], references: [id], onDelete: Restrict)
   auditLogs                AuditLog[]
   createdAt                DateTime              @default(now()) @map("created_at")
   updatedAt                DateTime              @updatedAt @map("updated_at")
@@ -120,7 +122,6 @@ model LawyerSecretaryLink {
   @@map("lawyer_secretary_links")
 }
 
-
 enum ClientType {
   INDIVIDUAL
   COMPANY
@@ -131,13 +132,15 @@ enum AddressType {
   COMMERCIAL
   OTHER
 }
+
 model Office {
-  id        String   @id @default(uuid()) @db.Uuid
-  cnpj      String   @unique @db.VarChar(14)
+  id        String  @id @default(uuid()) @db.Uuid
+  cnpj      String  @unique @db.VarChar(14)
   name      String
-  tradeName String?  @map("trade_name")
+  tradeName String? @map("trade_name")
 
   clients Client[]
+  users   User[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -146,21 +149,21 @@ model Office {
 }
 
 model Client {
-  id        String     @id @default(uuid()) @db.Uuid
-  officeId  String     @map("office_id") @db.Uuid
-  type      ClientType
-  name      String
-  document  String     @db.VarChar(14)
-  email     String?
-  phone     String?
+  id       String     @id @default(uuid()) @db.Uuid
+  officeId String     @map("office_id") @db.Uuid
+  type     ClientType
+  name     String
+  document String     @db.VarChar(14)
+  email    String?
+  phone    String?
 
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime   @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  office          Office           @relation(fields: [officeId], references: [id], onDelete: Restrict)
-  individualData  IndividualClient?
-  companyData     CompanyClient?
-  addresses       ClientAddress[]
+  office         Office            @relation(fields: [officeId], references: [id], onDelete: Restrict)
+  individualData IndividualClient?
+  companyData    CompanyClient?
+  addresses      ClientAddress[]
 
   @@unique([officeId, document])
   @@index([officeId])
@@ -184,7 +187,7 @@ model CompanyClient {
   clientId              String    @id @map("client_id") @db.Uuid
   tradeName             String?   @map("trade_name")
   stateRegistration     String?   @map("state_registration")
-  municipalRegistration String?  @map("municipal_registration")
+  municipalRegistration String?   @map("municipal_registration")
   openingDate           DateTime? @map("opening_date") @db.Date
   legalNature           String?   @map("legal_nature")
 
@@ -206,8 +209,8 @@ model ClientAddress {
   state        String      @db.VarChar(2)
   isPrimary    Boolean     @default(false) @map("is_primary")
 
-  createdAt    DateTime    @default(now()) @map("created_at")
-  updatedAt    DateTime    @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 

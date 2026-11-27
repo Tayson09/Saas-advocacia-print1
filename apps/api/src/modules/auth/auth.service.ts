@@ -66,6 +66,7 @@ export const AuthService = {
         name: user.name,
         email: user.email,
         role: user.role,
+        officeId: user.officeId,
       } 
     }
   },
@@ -108,6 +109,7 @@ export const AuthService = {
       id: stored.user.id,
       role: stored.user.role,
       name: stored.user.name,
+      officeId: stored.user.officeId
     });
     const newRefreshToken = tokenService.generateRefreshToken();
     const newExpiresAt = new Date(

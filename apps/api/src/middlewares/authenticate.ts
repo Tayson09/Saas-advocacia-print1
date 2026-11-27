@@ -6,24 +6,28 @@ import { AccessTokenInvalid } from "../helpers/errors/access-token-invalid.error
 export const authenticate: RequestHandler = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
-  console.log("Entrou no authenticate");
   const authorization = req.headers.authorization;
 
-  if (!authorization) return next(new AccessTokenInvalid());
+  if (!authorization) {
+    return next(new AccessTokenInvalid());
+  }
 
   const [scheme, token] = authorization.split(" ");
 
-  if (scheme !== "Bearer" || !token) return next(new AccessTokenInvalid());
+  if (scheme !== "Bearer" || !token) {
+    return next(new AccessTokenInvalid());
+  }
 
   try {
-    const { userId} = verifyAccessToken(token);
+    const { userId, officeId } = verifyAccessToken(token);
 
     res.locals.userId = userId;
+    res.locals.officeId = officeId;
 
     return next();
   } catch (error) {
     return next(error);
   }
-}
+};

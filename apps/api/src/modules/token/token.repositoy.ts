@@ -14,7 +14,7 @@ export const TokenRepository = {
   findByHash(tokenHash: string, db: DbClient = defaultDb) {
     return db.refreshToken.findUnique({
       where: { tokenHash },
-      include: { user: { select: { id: true, role: true, isActive: true, name: true } } },
+      include: { user: { select: { id: true, role: true, isActive: true, name: true, officeId: true } } },
     });
   },
 

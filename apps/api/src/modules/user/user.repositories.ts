@@ -6,6 +6,7 @@ name: string;
 email: string;
 role: UserRole;
 passwordHash: string;
+officeId: string;
 passwordSetupCompletedAt?: Date | null;
 isActive?: boolean;
 };
@@ -16,6 +17,7 @@ name: true,
 email: true,
 role: true,
 isActive: true,
+officeId: true,
 passwordSetupCompletedAt: true,
 createdAt: true,
 } as const;
@@ -63,6 +65,7 @@ export const userRepository = {
         id: true,
         role: true,
         isActive: true,
+        officeId: true,
       },
     });
   },

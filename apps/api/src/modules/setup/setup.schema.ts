@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { createOfficeSchema } from "../office/schema.js";
 
 export const password = z
   .string({ error: "Senha é obrigatória" })
@@ -11,7 +12,10 @@ export const password = z
       .regex(/[a-z]/, "A senha deve conter ao menos uma letra minúscula")
       .regex(/[A-Z]/, "A senha deve conter ao menos uma letra maiúscula")
       .regex(/\d/, "A senha deve conter ao menos um número")
-      .regex(/[^A-Za-z0-9]/, "A senha deve conter ao menos um caractere especial")
+      .regex(
+        /[^A-Za-z0-9]/,
+        "A senha deve conter ao menos um caractere especial",
+      ),
   );
 
 export const registerAdminSchema = {
@@ -23,7 +27,7 @@ export const registerAdminSchema = {
       .min(2, "Nome muito curto")
       .regex(
         /^\p{L}[\p{L}\s.'-]*$/u,
-        "Informe um nome válido (somente letras)"
+        "Informe um nome válido (somente letras)",
       ),
     email: z
       .string({ error: "E-mail é obrigatório" })
@@ -32,6 +36,7 @@ export const registerAdminSchema = {
       .min(1, "E-mail é obrigatório")
       .pipe(z.email("E-mail inválido")),
     password,
+    office: createOfficeSchema,
   }),
 };
 
