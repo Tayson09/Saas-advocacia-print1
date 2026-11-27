@@ -1,4 +1,5 @@
 import swaggerJSDoc from "swagger-jsdoc";
+import { clientOpenApiSchemas } from "../modules/clients/docs/client.openapi.js";
 
 const options: swaggerJSDoc.Options = {
   definition: {
@@ -18,12 +19,8 @@ const options: swaggerJSDoc.Options = {
     ],
 
     components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
-        },
+      schemas: {
+        ...clientOpenApiSchemas,
       },
     },
   },
@@ -32,5 +29,3 @@ const options: swaggerJSDoc.Options = {
 };
 
 export const swaggerSpec = swaggerJSDoc(options);
-
-

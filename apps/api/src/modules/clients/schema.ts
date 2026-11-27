@@ -145,7 +145,11 @@ const clientAddressSchema = z.strictObject({
 const commonClientFields = {
   name: z.string().trim().min(1, "O nome é obrigatório."),
 
-  email: z.email("Informe um email válido.").optional(),
+  email: z
+    .email("Informe um email válido.")
+    .optional()
+    .or(z.literal(""))
+    .transform((value) => (value === "" ? undefined : value)),
 
   phone: z.string().trim().optional(),
 
